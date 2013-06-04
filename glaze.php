@@ -1,4 +1,10 @@
 <?php
+/*
+Copyright 2013 Patrick Smith
+
+This content is released under the MIT License: http://opensource.org/licenses/MIT
+
+*/
 
 function glazeText($string)
 {
@@ -9,7 +15,7 @@ function glazeText($string)
 
 function glazeURL($string)
 {
-	return htmlspecialchars($string, ENT_QUOTES, 'UTF-8');
+	return glazeText($string);
 }
 
 function glazeEncodedText($string)
@@ -26,12 +32,12 @@ function glazeEncodedText($string)
 	return $stringDisplay;
 }
 
-function glazeAttributeValue($string, $valueType = null)
+function glazeValue($string, $valueType = null)
 {
 	if ($valueType === 'URL' || $valueType === 'url') {
 		return glazeURL($string);
 	}
-	else if ($valueType === 'untouched') {
+	else if ($valueType === 'glazed') {
 		return $string;
 	}
 	else {
@@ -42,7 +48,7 @@ function glazeAttributeValue($string, $valueType = null)
 function glazeAttribute($attributeName, $attributeValue, $valueType = null)
 {
 	// Looks like | attributeName="attributeValue"|
-	return ' '.$attributeName.'="'.glazeAttributeValue($attributeValue, $valueType).'"';
+	return ' '.$attributeName.'="'.glazeValue($attributeValue, $valueType).'"';
 }
 
 function glazeAttributeCheck($attributeName, &$attributeValueToCheck, $attributeValueToUse = null, $valueType = null)
