@@ -6,10 +6,7 @@ Simple PHP functions for escaping text, URLs, email addresses, and HTML attribut
 	// Simple text
 	echo glazeText('Text to display');
 	
-	// URLs (note: doesn't do anything different from glazeText() so far)
-	echo glazeURL('http://www.yeoldexample.com/');
-	
-	// Escape an email address, for making it a little bit harder for spam bots.
+	// Escape an email address, for making it harder for spam bots to pick up.
 	$emailAddressDisplay = glazeEncodedText('email@example.com');
 
 For escaping HTML attributes:
