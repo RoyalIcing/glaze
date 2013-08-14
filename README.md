@@ -22,23 +22,15 @@ string glazeAttributeCheck( string $attributeName, mixed &$attributeValueToCheck
 
 ```
 
-```php
-// Simple text
-echo glazeText('Text to display');
-
-// Encode an email address to make it harder for spam bots to pick up.
-$emailAddressDisplay = glazeNumericEntityEncodedText('email@example.com');
-```
-
-For escaping HTML attributes:
+### Simple example
 
 ```php
 ?>
-<a<?= glazeAttribute('href', 'http://www.facebook.com/') ?>><?= glazeText('Friends & family contact me here.') ?></a>
+<a<?= glazeAttribute('href', 'http://www.facebook.com/') ?>><?= glazeText('All my friends & family are on here.') ?></a>
 <?php
 ```
 	
-More complex example:
+### More complex example
 
 ```php
 $info = json_decode($filePath, true); // true: decodes as an array
