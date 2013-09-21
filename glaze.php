@@ -129,3 +129,13 @@ function glazeAttributeCheck($attributeName, &$attributeValueToCheck, $attribute
 	
 	return glazeAttribute($attributeName, isset($attributeValueToUse) ? $attributeValueToUse : $attributeValueToCheck, $valueType);
 }
+
+function glazyAttribute($attributeName, $attributeValue, $valueType = null)
+{
+	echo glazeAttribute($attributeName, $attributeValue, $valueType);
+}
+
+function glazyAttributeCheck($attributeName, &$attributeValueToCheck, $attributeValueToUse = null, $valueType = null)
+{
+	echo glazeAttributeCheck($attributeName, $attributeValueToCheck, $attributeValueToUse, $valueType);
+}
