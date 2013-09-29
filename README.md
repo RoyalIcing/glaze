@@ -5,7 +5,7 @@ Glaze
 
 When displaying anything on the web it must be properly dealt with for the HTML format. Any bits of text, any URL, any HTML attribute must be properly ‘escaped’ before displaying them.
 
-Normally people use functions like `htmlspecialchars()` to do the work, or they madly paste text into their source code and manually change characters like *&* into `&amp;` and *the > symbol* into `&gt;`.
+Normally people use functions like `htmlspecialchars()` to do the work, or they madly paste text into their source code and manually change characters like **&** into `&amp;` and **>** into `&gt;`.
 
 Well there’s these things called computers and you can avoid all that manual work or use whatever baking-inspired function names you like.
 
@@ -55,6 +55,8 @@ void glazyAttributeCheck( string $attributeName, mixed &$attributeValueToCheck [
 ### Class attributes
 
 ```php
+// $classNames is an [array] of class names.
+
 // Long way
 if (!empty($classNames)):
 ?> class="<?= implode(' ', $classNames); ?>"<?php
