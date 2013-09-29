@@ -94,7 +94,7 @@ glazyAttributeCheck('selected', $info['selected'], 'selected');
 <?php
 ```
 
-#### Using already escaped information:
+#### Using already escaped information
 
 ```php
 $escapedText = 'Bangers &amp; Mash';
