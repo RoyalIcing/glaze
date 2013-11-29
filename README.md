@@ -30,6 +30,9 @@ string glazeEmailAddressMailtoURL( string $emailAddress )
 // Returns a number as 1st, 2nd, 3rd, 4th...
 string glazeNumberWithOrdinals( int $number )
 
+
+/* The following g-lazy functions display for you, instead of returning a string. */
+
 // Displays an HTML element's attribute: | name="value"|
 void glazyAttribute( string $attributeName, string $attributeValue [, string $valueType ] )
 
@@ -37,14 +40,23 @@ void glazyAttribute( string $attributeName, string $attributeValue [, string $va
 // If $attributeValueToUse isn't passed then $attributeValueToCheck is also the value that is displayed.
 void glazyAttributeCheck( string $attributeName, mixed &$attributeValueToCheck [, string $attributeValueToUse = null, string $valueType = null] )
 
-// Never think again "before I output this string to the user it must be escaped for the Hyper Text Markup Language..."
+// Display a simple <tag>CONTENTS</tag>, with a choice for the tag name, and its contents value and type.
+void glazyElement( string $tagName, string $contentsValue [, string $valueType ] )
+
+// For truly lazy debugging, use this to spit out a <pre> tag containing the contents of an object.
+void glazyPrintR( $object )
+
+
+/*
+	Never think again "before I output this string to the user it must be first escaped for the Hyper Text Markup Language..."
+*/
 
 ```
 
 ### A simple example
 
 ```php
-/* HTML needs the ampersand escaped to &amp; */
+/* HTML needs the ampersand encoded as &amp; */
 ?>
 <a<?php glazyAttribute('href', 'http://www.facebook.com/'); ?>>
 <?= glazeText('All my friends & family are on here.') ?>

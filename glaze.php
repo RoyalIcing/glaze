@@ -130,6 +130,8 @@ function glazeAttributeCheck($attributeName, &$attributeValueToCheck, $attribute
 	return glazeAttribute($attributeName, isset($attributeValueToUse) ? $attributeValueToUse : $attributeValueToCheck, $valueType);
 }
 
+// Feeling Glazy?
+
 function glazyAttribute($attributeName, $attributeValue, $valueType = null)
 {
 	echo glazeAttribute($attributeName, $attributeValue, $valueType);
@@ -138,4 +140,16 @@ function glazyAttribute($attributeName, $attributeValue, $valueType = null)
 function glazyAttributeCheck($attributeName, &$attributeValueToCheck, $attributeValueToUse = null, $valueType = null)
 {
 	echo glazeAttributeCheck($attributeName, $attributeValueToCheck, $attributeValueToUse, $valueType);
+}
+
+function glazyElement($tagName, $contentsValue, $valueType = null)
+{
+	echo "<$tagName>";
+	echo glazeValue($contentsValue, $valueType);
+	echo "</$tagName>";
+}
+
+function glazyPrintR($object)
+{
+	glazyElement('pre', print_r($object, true));
 }
