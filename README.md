@@ -1,11 +1,11 @@
-Glaze
+· Glaze ·
 =====
 
-## [French and Viennese pastry chefs originally invented the idea of glazing cakes as a way of preserving them—the glaze sealed off the cakes from the air and prevented them from growing stale.](http://www.epicurious.com/articlesguides/howtocook/primers/cakesfrostings)
+### *[French and Viennese pastry chefs originally invented the idea of glazing cakes as a way of preserving them—the glaze sealed off the cakes from the air and prevented them from growing stale.](http://www.epicurious.com/articlesguides/howtocook/primers/cakesfrostings)*
 
-When displaying anything on the web it must be properly dealt with for the HTML format. Any bits of text, any URL, any HTML attribute must be properly ‘escaped’ before displaying them.
+When displaying anything on the web it must be properly dealt with for the HTML format. Any bits of text, any URL, and any HTML attribute must be properly *escaped* before displaying them.
 
-Normally people use functions like `htmlspecialchars()` to do the work, or they madly paste text into their source code and manually change characters like **&** into `&amp;` and **>** into `&gt;`.
+Normally people use functions like `htmlspecialchars()`, or they madly paste text into their source code and manually change characters like `&` into `&amp;` and `>` into `&gt;`.
 
 Well there’s these things called computers and you can avoid all that manual work or use whatever baking-inspired function names you like.
 
@@ -14,8 +14,7 @@ Well there’s these things called computers and you can avoid all that manual w
 Just tell it what you want to display and let it worry about the HTML-escaping part. It works with text, URLs, email addresses, and HTML attributes.
 
 
-### A simple example
-
+## A simple example
 ```php
 /* HTML needs the ampersand encoded as &amp; */
 ?>
@@ -25,7 +24,7 @@ Just tell it what you want to display and let it worry about the HTML-escaping p
 <?php
 ```
 
-### Class attributes
+## Class attributes
 
 ```php
 // $classNames is an [array] of class names.
@@ -39,7 +38,7 @@ endif;
 glazyAttributeCheck('class', $classNames);
 ```
 	
-### More complex example
+## More complex example
 
 ```php
 // Using JSON from a web API or from a file.
@@ -67,7 +66,7 @@ glazyAttributeCheck('selected', $info['selected'], 'selected');
 <?php
 ```
 
-#### Using already escaped information
+### Using already escaped information
 
 ```php
 $escapedText = 'Bangers &amp; Mash';
@@ -75,7 +74,7 @@ glazyAttribute('alt', $escapedText, GLAZE_TYPE_PREGLAZED);
 ```
 
 
-### Functions:
+## *Les fonctions*
 ```php
 
 // Returns text ready for display.
@@ -112,7 +111,11 @@ void glazyPrintR( $object )
 
 /*
 	Never think again "before I output this string to the user,
-	it must be first escaped for the Hyper Text Markup Language..."
+	it must be first escaped for the Hyper Text Markup Language,
+	therefore I must use this function which does this for me
+	and remember its name every time."
 */
 
 ```
+
+#### · Glaze ·
