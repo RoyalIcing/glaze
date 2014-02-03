@@ -1,12 +1,12 @@
 <?php
 /*
-Author 2013: Patrick Smith
+Author 2013, 2014: Patrick Smith
 
 This content is released under the MIT License: http://opensource.org/licenses/MIT
 
 */
 
-define ('GLAZE_VERSION', '1.5');
+define ('GLAZE_VERSION', '1.5.1');
 
 define ('GLAZE_TYPE_TEXT', 'text');
 define ('GLAZE_TYPE_URL', 'URL');
@@ -253,7 +253,7 @@ function &glazyGetElementsBuffer($options = null)
 function glazyAddToElementsBuffer($string)
 {
 	$glazyElementsBuffer = &glazyGetElementsBuffer();
-	
+	// If elements buffer is being used append it there, otherwise just display as is.
 	if (isset($glazyElementsBuffer)) {
 		$glazyElementsBuffer .= $string;
 	}
@@ -305,26 +305,34 @@ function glazyElement($elementInfo, $contentsValue = null, $valueType = null)
 {
 	$attributes = array();
 	
+	// String of form: tagName#elementID.multiple.class.names
+	// The ID and classes are optional.
 	if (is_string($elementInfo)):
-		// Classes
+		// Extract classes
 		$parts = explode('.', $elementInfo);
-		
 		$elementInfo = $parts[0];
-		
+		// Add found classes
 		if (count($parts) > 1):
 			$elementClassNameParts = array_slice($parts, 1);
 			$attributes['class'] = $elementClassNameParts;
 		endif;
 		
-		// ID
+		// Extract ID
 		$parts = explode('#', $elementInfo);
-		
+		// Tag name is the left over
 		$tagName = $parts[0];
-		
+		// Add found ID
 		if (count($parts) > 1):
 			$elementID = $parts[1];
 			$attributes['id'] = $elementID;
 		endif;
+	// Array with required tagName and optional attributes as extra keys.
+	elseif (is_array($elementInfo)):
+		// Tag name is specified in the dict
+		$tagName = $elementInfo['tagName'];
+		// Attributes are all the other keys.
+		$attributes = $elementInfo;
+		unset($attributes['tagName']);
 	endif;
 	
 	echo "<$tagName";
@@ -344,8 +352,14 @@ function glazyElement($elementInfo, $contentsValue = null, $valueType = null)
 	endif;
 }
 
+/* Convenience for lazy debugging */
+function glazyPrintR($object)
+{
+	glazyElement('pre', print_r($object, true));
+}
 
-/* private */ function glazyEnsureLatestElementOpenTagIsDisplayed()
+
+/* private */ function glazyEnsureOpeningTagForLatestElementIsDisplayed()
 {
 	$glazyOpenElements = &glazyGetOpenElements();
 	if (empty($glazyOpenElements)) {
@@ -360,13 +374,11 @@ function glazyElement($elementInfo, $contentsValue = null, $valueType = null)
 		
 		$latestOpenElement['openTagDone'] = true;
 	}
-	
-	$latestOpenElement2 = &$glazyOpenElements[count($glazyOpenElements) - 1];
 }
 
 function glazyBegin($tagName) // $glazeType = GLAZE_TYPE_PREGLAZED
 {
-	glazyEnsureLatestElementOpenTagIsDisplayed();
+	glazyEnsureOpeningTagForLatestElementIsDisplayed();
 	
 	echo "<$tagName";
 	
@@ -389,7 +401,7 @@ function glazyClose()
 	//$outputtedString = ob_get_contents();
 	//ob_clean();
 	
-	glazyEnsureLatestElementOpenTagIsDisplayed();
+	glazyEnsureOpeningTagForLatestElementIsDisplayed();
 	
 	echo $outputtedString;
 	
@@ -404,15 +416,4 @@ function glazyClose()
 	if (glazeElementTagNameIsBlockLevel($tagName) || glazeElementTagNameBelongsInHead($tagName)) {
 		echo "\n";
 	}
-	
-	//ob_end_flush();
-	
-	//$glazyOpenElements = glazyGetOpenElements();
-}
-
-
-
-function glazyPrintR($object)
-{
-	glazyElement('pre', print_r($object, true));
 }
