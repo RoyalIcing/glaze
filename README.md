@@ -3,7 +3,7 @@
 
 ### *[French and Viennese pastry chefs originally invented the idea of glazing cakes as a way of preserving them—the glaze sealed off the cakes from the air and prevented them from growing stale.](http://www.epicurious.com/articlesguides/howtocook/primers/cakesfrostings)*
 
-When displaying anything on the web it must be properly dealt with for the HTML format. Any bits of text, any URL, and any HTML attribute must be properly *escaped* before displaying them.
+When displaying anything on the web it must be properly prepared for HTML. Any text, any URL, and any HTML element's attribute must be properly *escaped* before displaying them.
 
 Normally people use functions like `htmlspecialchars()`, or they madly paste text into their source code and manually change characters like `&` into `&amp;` and `>` into `&gt;`.
 
@@ -11,7 +11,13 @@ Well there’s these things called computers and you can avoid all that manual w
 
 ## Glaze preserves the text you want to display.
 
-Just tell it what you want to display and let it worry about the HTML-escaping part. It works with text, URLs, email addresses, and HTML attributes.
+Just tell it what you want to display and let it worry about the HTML-escaping part. It works with text, URLs, email addresses, and also HTML attributes.
+
+Use `glazyAttribute()` to smartly display an array of class names in a `class` attribute, or a link’s href, or an image’s `src`.
+
+You can also check an attribute’s value before displaying using `glazyAttributeCheck()`, saving complicated nesting of `if` statements and PHP’s end and open tags.
+
+For displaying entire HTML elements, you can use `glazyElement()`, see below for examples.
 
 
 ## A simple example
@@ -29,16 +35,16 @@ Just tell it what you want to display and let it worry about the HTML-escaping p
 ```php
 // $classNames is an [array] of class names.
 
-// Long way
+// Long way:
 if (!empty($classNames)):
 ?> class="<?= implode(' ', $classNames); ?>"<?php
 endif;
 
-// Using glaze
+// Using glaze:
 glazyAttributeCheck('class', $classNames);
 ```
 	
-## More complex example
+## Check attribute value before displaying
 
 ```php
 // Using JSON from a web API or from a file.
@@ -64,6 +70,31 @@ glazyAttributeCheck('selected', $info['selected'], 'selected');
 <?= glazeText($info['itemDescription']) ?>
 </div>
 <?php
+```
+
+## Easily display whole elements
+```php
+// Easy escaped elements in one line.
+glazyElement('h1#siteTitle', 'Welcome');
+glazyElement('h2.tagline', 'The home of examples & more');
+glazyElement('p.any.classes.you.need', 'Blah blah blah blah');
+
+
+// Or use array version, to specify any attribute:
+
+// Elements with both attributes and contents.
+glazyElement(array(
+	'tagName' => 'a',
+	'href' => 'http://www.burntcaramel.com/',
+	'class' => 'externalLink'
+), 'Link to another site');
+
+// Self closing elements without contents.
+glazyElement(array(
+	'tagName' => 'meta',
+	'name' => 'description',
+	'content' => 'Site description as seen by search engines'
+));
 ```
 
 ### Using already escaped information
@@ -102,11 +133,21 @@ void glazyAttribute( string $attributeName, string $attributeValue [, string $va
 // If $attributeValueToUse isn't passed then $attributeValueToCheck is also the value that is displayed.
 void glazyAttributeCheck( string $attributeName, mixed &$attributeValueToCheck [, string $attributeValueToUse = null, string $valueType = null] )
 
-// Display a simple <tag>CONTENTS</tag>, with a choice for the tag name, and its contents value and type.
-void glazyElement( string $tagName, string $contentsValue [, string $valueType ] )
+// Display a simple <tag id="elementID" class="classes you need">CONTENTS</tag>, with a choice for the tag name, and its contents value and type.
+void glazyElement( string/array $tagNameOrElementOptions, string $contentsValue [, string $valueType ] )
 
 // For truly lazy debugging, use this to spit out a <pre> tag containing the contents of an object.
 void glazyPrintR( $object )
+
+
+/* Coming soon, a work in progress: */
+/* Fully fleshed HTML elements */
+
+// Open an element, and use glazyAttribute() for attributes, and then simply display your element's contents.
+void glazyBegin( string $tagName [, string $valueType ] )
+
+// Close element
+void glazyClose()
 
 
 /*

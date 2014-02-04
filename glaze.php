@@ -3,7 +3,6 @@
 Author 2013, 2014: Patrick Smith
 
 This content is released under the MIT License: http://opensource.org/licenses/MIT
-
 */
 
 define ('GLAZE_VERSION', '1.5.1');
@@ -314,7 +313,6 @@ function glazyElement($elementInfo, $contentsValue = null, $valueType = null)
 		// Add found classes
 		if (count($parts) > 1):
 			$elementClassNameParts = array_slice($parts, 1);
-			$attributes['class'] = $elementClassNameParts;
 		endif;
 		
 		// Extract ID
@@ -324,7 +322,15 @@ function glazyElement($elementInfo, $contentsValue = null, $valueType = null)
 		// Add found ID
 		if (count($parts) > 1):
 			$elementID = $parts[1];
+		endif;
+		
+		// Set attributes, in our preferred order.
+		if (!empty($elementID)):
 			$attributes['id'] = $elementID;
+		endif;
+		
+		if (!empty($elementClassNameParts)):
+			$attributes['class'] = $elementClassNameParts;
 		endif;
 	// Array with required tagName and optional attributes as extra keys.
 	elseif (is_array($elementInfo)):
@@ -350,6 +356,8 @@ function glazyElement($elementInfo, $contentsValue = null, $valueType = null)
 	if (!glazeElementTagNameIsSelfClosing($tagName)):
 		echo "</$tagName>";
 	endif;
+	
+	echo "\n";
 }
 
 /* Convenience for lazy debugging */
@@ -376,7 +384,7 @@ function glazyPrintR($object)
 	}
 }
 
-function glazyBegin($tagName) // $glazeType = GLAZE_TYPE_PREGLAZED
+function glazyBegin($tagName = null, $valueType = GLAZE_TYPE_PREGLAZED)
 {
 	glazyEnsureOpeningTagForLatestElementIsDisplayed();
 	
@@ -392,10 +400,16 @@ function glazyBegin($tagName) // $glazeType = GLAZE_TYPE_PREGLAZED
 		ob_start();
 	}
 	
-	$glazyOpenElements[] = array('tagName' => $tagName, 'openTagDone' => false);
+	$glazyOpenElements[] = array(
+		'tagName' => $tagName,
+		'openTagDone' => false,
+		'valueType' => $valueType
+	);
 }
 
 function glazyClose()
+// TODO: Pass the return value from glazyBegin() to close everything to that element.
+// TODO: Possbily the tagName in glazyBegin() would be optional, allowing you to wrap a whole bunch of elements easily and ensure they are closed.
 {
 	$outputtedString = ob_get_clean();
 	//$outputtedString = ob_get_contents();
@@ -403,10 +417,12 @@ function glazyClose()
 	
 	glazyEnsureOpeningTagForLatestElementIsDisplayed();
 	
-	echo $outputtedString;
-	
 	$glazyOpenElements = &glazyGetOpenElements();
 	$elementInfo = array_pop($glazyOpenElements);
+	$valueType = $elementInfo['valueType'];
+	
+	echo glazeValue($outputtedString, $valueType);
+	
 	$tagName = $elementInfo['tagName'];
 	
 	if (!glazeElementTagNameIsSelfClosing($tagName)) {
