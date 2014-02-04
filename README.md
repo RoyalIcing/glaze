@@ -1,5 +1,5 @@
-· Glaze ·
-=====
+~ Glaze ~
+=========
 
 ### *[French and Viennese pastry chefs originally invented the idea of glazing cakes as a way of preserving them—the glaze sealed off the cakes from the air and prevented them from growing stale.](http://www.epicurious.com/articlesguides/howtocook/primers/cakesfrostings)*
 
@@ -105,7 +105,7 @@ glazyAttribute('alt', $escapedText, GLAZE_TYPE_PREGLAZED);
 ```
 
 
-## *Les fonctions*
+## *~ Les fonctions ~*
 ```php
 
 // Returns text ready for display.
@@ -158,5 +158,3 @@ void glazyClose()
 */
 
 ```
-
-#### · Glaze ·
