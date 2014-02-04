@@ -1,19 +1,19 @@
-~ Glaze ~
-=========
+Glaze
+=====
 
 ### *[French and Viennese pastry chefs originally invented the idea of glazing cakes as a way of preserving them—the glaze sealed off the cakes from the air and prevented them from growing stale.](http://www.epicurious.com/articlesguides/howtocook/primers/cakesfrostings)*
 
-When displaying anything on the web it must be properly prepared for HTML. Any text, any URL, and any HTML element's attribute must be properly *escaped* before displaying them.
+**When displaying anything on the web it must be properly prepared for HTML.** Any text, any URL, and any HTML element’s attributes and contents must be properly *escaped* before they are displayed.
 
 Normally people use functions like `htmlspecialchars()`, or they madly paste text into their source code and manually change characters like `&` into `&amp;` and `>` into `&gt;`.
 
-Well there’s these things called computers and you can avoid all that manual work or use whatever baking-inspired function names you like.
+Well there’s these things called computers and you can avoid all that manual work and use whatever baking-inspired function names you like.
 
 ## Glaze preserves the text you want to display.
 
-Just tell it what you want to display and let it worry about the HTML-escaping part. It works with text, URLs, email addresses, and also HTML attributes.
+Just tell it what you want to display and let it worry about the HTML-escaping part. It works with text, URLs, email addresses, and also HTML elements and attributes.
 
-Use `glazyAttribute()` to smartly display an array of class names in a `class` attribute, or a link’s href, or an image’s `src`.
+Use `glazyAttribute()` to smartly display an array of class names in a `class` attribute, or a link’s `href`, or an image’s `src`.
 
 You can also check an attribute’s value before displaying using `glazyAttributeCheck()`, saving complicated nesting of `if` statements and PHP’s end and open tags.
 
@@ -153,7 +153,7 @@ void glazyClose()
 /*
 	Never think again "before I output this string to the user,
 	it must be first escaped for the Hyper Text Markup Language,
-	therefore I must use this function which does this for me
+	therefore I must use this 'special' function which does this for me
 	and remember its name every time."
 */
 
