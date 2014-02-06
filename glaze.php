@@ -116,8 +116,8 @@ function garnishNumberWithOrdinals($number)
 {
 	if (is_array($attributeValue) && isset($attributeValue['valueType'])) {
 		$attributeOptions = $attributeValue;
-		$attributeValue = $attributeOptions[0];
-		$valueType = $attributeOptions[1];
+		$attributeValue = $attributeOptions['value'];
+		$valueType = $attributeOptions['valueType'];
 	}
 	
 	if (empty($valueType)) {
