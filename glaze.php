@@ -114,7 +114,7 @@ function garnishNumberWithOrdinals($number)
 
 /* private */ function glazeAttribute($attributeName, $attributeValue, $valueType = null)
 {
-	if (is_array($attributeValue)) {
+	if (is_array($attributeValue) && isset($attributeValue['valueType'])) {
 		$attributeOptions = $attributeValue;
 		$attributeValue = $attributeOptions[0];
 		$valueType = $attributeOptions[1];
