@@ -221,7 +221,7 @@ function glazeElementTagNameBelongsInHead($tagName)
 
 /* Feeling Glazy? */
 
-function &glazyGetOpenElements($begin = false)
+/* private */ function &glazyGetOpenElements($begin = false)
 {
 	global $glazyOpenElements;
 	
@@ -232,7 +232,7 @@ function &glazyGetOpenElements($begin = false)
 	return $glazyOpenElements;
 }
 
-function &glazyGetElementsBuffer($options = null)
+/* private */ function &glazyGetElementsBuffer($options = null)
 {
 	global $glazyElementsBuffer;
 	
@@ -249,7 +249,7 @@ function &glazyGetElementsBuffer($options = null)
 	return $glazyElementsBuffer;
 }
 
-function glazyAddToElementsBuffer($string)
+/* private */ function glazyAddToElementsBuffer($string)
 {
 	$glazyElementsBuffer = &glazyGetElementsBuffer();
 	// If elements buffer is being used append it there, otherwise just display as is.
@@ -261,7 +261,7 @@ function glazyAddToElementsBuffer($string)
 	}
 }
 
-function glazyCopyAndCleanElementsBuffer()
+/* private */ function glazyCopyAndCleanElementsBuffer()
 {
 	$glazyElementsBuffer = glazyGetElementsBuffer();
 	$copy = $glazyElementsBuffer;
@@ -269,6 +269,23 @@ function glazyCopyAndCleanElementsBuffer()
 	glazyGetElementsBuffer(array('clean' => true));
 	
 	return $copy;
+}
+
+function glazyEnsureOpeningTagForLatestElementIsDisplayed()
+{
+	$glazyOpenElements = &glazyGetOpenElements();
+	if (empty($glazyOpenElements)) {
+		return;
+	}
+	
+	$latestOpenElement = &$glazyOpenElements[count($glazyOpenElements) - 1];
+	
+	if (!$latestOpenElement['openTagDone']) {
+		echo glazyCopyAndCleanElementsBuffer();
+		echo '>';
+		
+		$latestOpenElement['openTagDone'] = true;
+	}
 }
 
 /* Glazy Attributes */
@@ -302,6 +319,9 @@ function glazyAttributesArray($attributes)
 
 function glazyElement($elementInfo, $contentsValue = null, $valueType = null)
 {
+	glazyEnsureOpeningTagForLatestElementIsDisplayed();
+	
+	
 	$attributes = array();
 	
 	// String of form: tagName#elementID.multiple.class.names
@@ -366,23 +386,6 @@ function glazyPrintR($object)
 	glazyElement('pre', print_r($object, true));
 }
 
-
-/* private */ function glazyEnsureOpeningTagForLatestElementIsDisplayed()
-{
-	$glazyOpenElements = &glazyGetOpenElements();
-	if (empty($glazyOpenElements)) {
-		return;
-	}
-	
-	$latestOpenElement = &$glazyOpenElements[count($glazyOpenElements) - 1];
-	
-	if (!$latestOpenElement['openTagDone']) {
-		echo glazyCopyAndCleanElementsBuffer();
-		echo '>';
-		
-		$latestOpenElement['openTagDone'] = true;
-	}
-}
 
 function glazyBegin($tagName = null, $valueType = GLAZE_TYPE_PREGLAZED)
 {
