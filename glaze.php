@@ -5,7 +5,7 @@ Author 2013, 2014: Patrick Smith
 This content is released under the MIT License: http://opensource.org/licenses/MIT
 */
 
-define ('GLAZE_VERSION', '1.5.1');
+define ('GLAZE_VERSION', '1.5.2a');
 
 define ('GLAZE_TYPE_TEXT', 'text');
 define ('GLAZE_TYPE_URL', 'URL');
@@ -114,6 +114,12 @@ function garnishNumberWithOrdinals($number)
 
 /* private */ function glazeAttribute($attributeName, $attributeValue, $valueType = null)
 {
+	if (is_array($attributeValue)) {
+		$attributeOptions = $attributeValue;
+		$attributeValue = $attributeOptions[0];
+		$valueType = $attributeOptions[1];
+	}
+	
 	if (empty($valueType)) {
 		$valueType = glazeTypeForAttributeName($attributeName);
 	}
