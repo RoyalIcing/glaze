@@ -5,7 +5,7 @@ Author 2013, 2014: Patrick Smith
 This content is released under the MIT License: http://opensource.org/licenses/MIT
 */
 
-define ('GLAZE_VERSION', '1.5.2a');
+define ('GLAZE_VERSION', '1.5.2b');
 
 define ('GLAZE_TYPE_TEXT', 'text');
 define ('GLAZE_TYPE_URL', 'URL');
@@ -323,18 +323,15 @@ function glazyAttributesArray($attributes)
 }
 
 
-function glazyElement($elementInfo, $contentsValue = null, $valueType = null)
+/* private */ function glazyElementInfoForPassedOptions($tagNameOrElementOptions)
 {
-	glazyEnsureOpeningTagForLatestElementIsDisplayed();
-	
-	
 	$attributes = array();
 	
 	// String of form: tagName#elementID.multiple.class.names
 	// The ID and classes are optional.
-	if (is_string($elementInfo)):
+	if (is_string($tagNameOrElementOptions)):
 		// Extract classes
-		$parts = explode('.', $elementInfo);
+		$parts = explode('.', $tagNameOrElementOptions);
 		$elementInfo = $parts[0];
 		// Add found classes
 		if (count($parts) > 1):
@@ -359,13 +356,29 @@ function glazyElement($elementInfo, $contentsValue = null, $valueType = null)
 			$attributes['class'] = $elementClassNameParts;
 		endif;
 	// Array with required tagName and optional attributes as extra keys.
-	elseif (is_array($elementInfo)):
+	elseif (is_array($tagNameOrElementOptions)):
 		// Tag name is specified in the dict
-		$tagName = $elementInfo['tagName'];
+		$tagName = $tagNameOrElementOptions['tagName'];
 		// Attributes are all the other keys.
-		$attributes = $elementInfo;
+		$attributes = $tagNameOrElementOptions;
 		unset($attributes['tagName']);
 	endif;
+	
+	return array(
+		'tagName' => $tagName,
+		'attributes' => $attributes
+	);
+}
+
+function glazyElement($tagNameOrElementOptions, $contentsValue = null, $valueType = null)
+{
+	glazyEnsureOpeningTagForLatestElementIsDisplayed();
+	
+	
+	$elementInfo = glazyElementInfoForPassedOptions($tagNameOrElementOptions);
+	$tagName = $elementInfo['tagName'];
+	$attributes = $elementInfo['attributes'];
+	
 	
 	echo "<$tagName";
 	
@@ -393,9 +406,14 @@ function glazyPrintR($object)
 }
 
 
-function glazyBegin($tagName = null, $valueType = GLAZE_TYPE_PREGLAZED)
+function glazyBegin($tagNameOrElementOptions, $valueType = GLAZE_TYPE_PREGLAZED)
 {
 	glazyEnsureOpeningTagForLatestElementIsDisplayed();
+	
+	$elementInfo = glazyElementInfoForPassedOptions($tagNameOrElementOptions);
+	$tagName = $elementInfo['tagName'];
+	$attributes = $elementInfo['attributes'];
+	
 	
 	echo "<$tagName";
 	
@@ -414,11 +432,17 @@ function glazyBegin($tagName = null, $valueType = GLAZE_TYPE_PREGLAZED)
 		'openTagDone' => false,
 		'valueType' => $valueType
 	);
+	
+	if (!empty($attributes)):
+		glazyAttributesArray($attributes);
+	endif;
 }
 
 function glazyClose()
 // TODO: Pass the return value from glazyBegin() to close everything to that element.
-// TODO: Possbily the tagName in glazyBegin() would be optional, allowing you to wrap a whole bunch of elements easily and ensure they are closed.
+// TODO: Possibly the tagName in glazyBegin() would be optional,
+//       or another begin function could be created, allowing you to wrap a whole
+//       bunch of elements easily together and ensure they are closed.
 {
 	$outputtedString = ob_get_clean();
 	//$outputtedString = ob_get_contents();
