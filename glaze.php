@@ -5,7 +5,7 @@ Author 2013, 2014: Patrick Smith
 This content is released under the MIT License: http://opensource.org/licenses/MIT
 */
 
-define ('GLAZE_VERSION', '1.5.2b');
+define ('GLAZE_VERSION', '1.5.2c');
 
 define ('GLAZE_TYPE_TEXT', 'text');
 define ('GLAZE_TYPE_URL', 'URL');
@@ -205,6 +205,10 @@ function glazeElementTagNameIsBlockLevel($tagName)
 		case 'ul':
 		case 'video':
 			return true;
+		// Also include list items
+		case 'li':
+		case 'nav':
+			return true;
 		default:
 			return false;
 	endswitch;
@@ -289,6 +293,10 @@ function glazyEnsureOpeningTagForLatestElementIsDisplayed()
 	if (!$latestOpenElement['openTagDone']) {
 		echo glazyCopyAndCleanElementsBuffer();
 		echo '>';
+		
+		if (glazeElementTagNameIsBlockLevel($latestOpenElement['tagName'])) {
+			echo "\n";
+		}
 		
 		$latestOpenElement['openTagDone'] = true;
 	}
@@ -396,7 +404,9 @@ function glazyElement($tagNameOrElementOptions, $contentsValue = null, $valueTyp
 		echo "</$tagName>";
 	endif;
 	
-	echo "\n";
+	if (glazeElementTagNameIsBlockLevel($tagName) || glazeElementTagNameBelongsInHead($tagName)):
+		echo "\n";
+	endif;
 }
 
 /* Convenience for lazy debugging */
@@ -407,6 +417,10 @@ function glazyPrintR($object)
 
 
 function glazyBegin($tagNameOrElementOptions, $valueType = GLAZE_TYPE_PREGLAZED)
+// TODO: Possibly the tagName in glazyBegin() would be optional,
+//       or another begin function could be created, - glazyPrepare(), glazyServe()
+//       allowing you to wrap a whole bunch of elements easily together
+//       and ensure they are closed.
 {
 	glazyEnsureOpeningTagForLatestElementIsDisplayed();
 	
@@ -417,17 +431,18 @@ function glazyBegin($tagNameOrElementOptions, $valueType = GLAZE_TYPE_PREGLAZED)
 	
 	echo "<$tagName";
 	
-	$glazyElementsBuffer = &glazyGetElementsBuffer(array('begin' => true));
-	$glazyOpenElements = &glazyGetOpenElements(true);
+	$elementsBuffer = &glazyGetElementsBuffer(array('begin' => true));
+	$openElements = &glazyGetOpenElements(true);
+	$openElementsCount = count($openElements);
 	
-	if (empty($glazyOpenElements)) {
+	if (empty($openElements)) {
 		ob_start();
 	}
 	else {
 		ob_start();
 	}
 	
-	$glazyOpenElements[] = array(
+	$openElements[] = array(
 		'tagName' => $tagName,
 		'openTagDone' => false,
 		'valueType' => $valueType
@@ -436,33 +451,51 @@ function glazyBegin($tagNameOrElementOptions, $valueType = GLAZE_TYPE_PREGLAZED)
 	if (!empty($attributes)):
 		glazyAttributesArray($attributes);
 	endif;
+	
+	// Return info for glazyClose.
+	return array(
+		'glazyBegin' => true,
+		'tagName' => $tagName,
+		'previousOpenElementsCount' => $openElementsCount
+	);
 }
 
-function glazyClose()
-// TODO: Pass the return value from glazyBegin() to close everything to that element.
-// TODO: Possibly the tagName in glazyBegin() would be optional,
-//       or another begin function could be created, allowing you to wrap a whole
-//       bunch of elements easily together and ensure they are closed.
+function glazyClose($openedElementInfo = null)
 {
+	$openElements = &glazyGetOpenElements();
+	
+	$repeatCount = 1;
+	
+	if (!empty($openedElementInfo['previousOpenElementsCount'])) {
+		$previousCount = $openedElementInfo['previousOpenElementsCount'];
+		$currentCount = count($openElements);
+		$repeatCount = $currentCount - $previousCount;
+	}
+	
 	$outputtedString = ob_get_clean();
 	//$outputtedString = ob_get_contents();
 	//ob_clean();
 	
 	glazyEnsureOpeningTagForLatestElementIsDisplayed();
 	
-	$glazyOpenElements = &glazyGetOpenElements();
-	$elementInfo = array_pop($glazyOpenElements);
-	$valueType = $elementInfo['valueType'];
-	
-	echo glazeValue($outputtedString, $valueType);
-	
-	$tagName = $elementInfo['tagName'];
-	
-	if (!glazeElementTagNameIsSelfClosing($tagName)) {
-		echo "</$tagName>";
-	}
-	
-	if (glazeElementTagNameIsBlockLevel($tagName) || glazeElementTagNameBelongsInHead($tagName)) {
-		echo "\n";
+	while ($repeatCount--) {
+		$elementInfo = array_pop($openElements);
+		$valueType = $elementInfo['valueType'];
+		
+		if (!empty($outputtedString)) {
+			echo glazeValue($outputtedString, $valueType);
+		}
+		
+		$tagName = $elementInfo['tagName'];
+		
+		if (!glazeElementTagNameIsSelfClosing($tagName)) {
+			echo "</$tagName>";
+		}
+		
+		if (glazeElementTagNameIsBlockLevel($tagName) || glazeElementTagNameBelongsInHead($tagName)) {
+			echo "\n";
+		}
+		
+		$outputtedString = null;
 	}
 }
