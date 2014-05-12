@@ -1,6 +1,8 @@
 {
 	"name": "burntcaramel/glaze",
 	"description": "Easy to use functions for displaying HTML attributes & elements, escaping text, URLs, email addresses.",
+	"keywords": ["escape", "escaping", "html", "display", "text"],
+	"license": "MIT",
 	"require": {
 		"php": ">=5.3.0"
 	}
