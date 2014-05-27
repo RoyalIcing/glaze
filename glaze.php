@@ -5,7 +5,7 @@ Author 2013, 2014: Patrick Smith
 This content is released under the MIT License: http://opensource.org/licenses/MIT
 */
 
-define ('GLAZE_VERSION', '1.6.1');
+define ('GLAZE_VERSION', '1.6.2');
 
 define ('GLAZE_TYPE_TEXT', 'text');
 define ('GLAZE_TYPE_URL', 'URL');
@@ -285,7 +285,12 @@ function &glazyEnsureOpeningTag()
 {
 	$glazyOpenElements = &glazyGetOpenElements();
 	if (empty($glazyOpenElements)) {
-		return null;
+		// Return by reference is pretty bad
+		// but only way I can think to structure this
+		// without classes.
+		// Means we have to jump through hoops like this:
+		$empty = null;
+		return $empty;
 	}
 	
 	$latestOpenElement = &$glazyOpenElements[count($glazyOpenElements) - 1];
