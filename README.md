@@ -9,7 +9,7 @@ Normally people use functions like `htmlspecialchars()`, or they even madly past
 
 Well there’s these things called computers and you can avoid all that manual work and use whatever baking-inspired function names you like.
 
-## Glaze preserves the text you want to display.
+## Glaze preserves the content you want to display.
 
 ### Just tell it what you want to display and let it worry about the HTML writing and escaping part. It works with elements, attributes, text, URLs, and email addresses.
 

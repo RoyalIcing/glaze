@@ -350,7 +350,7 @@ function glazyAttributesArray($attributes)
 }
 
 
-function glazyContent($contentsValue = null, $valueType = null)
+function glazyContent($contentsValue, $valueType = GLAZE_TYPE_PREGLAZED)
 {
 	glazyBeginContent($valueType);
 	echo $contentsValue;
