@@ -5,7 +5,7 @@ Author 2013, 2014: Patrick Smith
 This content is released under the MIT License: http://opensource.org/licenses/MIT
 */
 
-define ('GLAZE_VERSION', '1.6.2');
+define ('GLAZE_VERSION', '1.6.4');
 
 define ('GLAZE_TYPE_TEXT', 'text');
 define ('GLAZE_TYPE_URL', 'URL');
@@ -124,14 +124,27 @@ function garnishNumberWithOrdinals($number)
 		$valueType = glazeTypeForAttributeName($attributeName);
 	}
 	
-	// Looks like | $name="$value"|
-	return ' ' .$attributeName. '="' .glazeValue($attributeValue, $valueType). '"';
+	// Boolean false attribute (omitted)
+	if ($attributeValue === false) {
+		return '';
+	}
+	// Boolean true attribute (for HTML5 just the attribute name)
+	else if ($attributeValue === true) {
+		// Looks like | $name|
+		return ' ' .$attributeName;
+	}
+	// Normal attribute with a text value
+	else {
+		// Looks like | $name="$value"|
+		return ' ' .$attributeName. '="' .glazeValue($attributeValue, $valueType). '"';
+	}
 }
 
 /* private */ function glazeAttributeCheck($attributeName, &$attributeValueToCheck, $attributeValueToUse = null, $valueType = null)
 {
-	if (empty($attributeValueToCheck))
+	if (empty($attributeValueToCheck)) {
 		return '';
+	}
 	
 	return glazeAttribute($attributeName, isset($attributeValueToUse) ? $attributeValueToUse : $attributeValueToCheck, $valueType);
 }
@@ -345,7 +358,7 @@ function glazyAttributesArray($attributes)
 	endif;
 	
 	foreach ($attributes as $attributeName => $attributeValue):
-		glazyAttribute($attributeName, $attributeValue);
+		glazyAttributeCheck($attributeName, $attributeValue);
 	endforeach;
 }
 
@@ -356,7 +369,7 @@ function glazyContent($contentsValue, $valueType = GLAZE_TYPE_PREGLAZED)
 	echo $contentsValue;
 	
 	// Do not escape twice, as currently this is
-	// handled in glazyFinish()
+	// handled in glazyFinish() using ob_start() etc.
 	///echo glazeValue($contentsValue, $valueType);
 }
 
