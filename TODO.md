@@ -150,3 +150,7 @@ Glaze TODO
 ```php
 	glazeRegister('mySpecialURLFinder');
 ```
+
+## Doesn't support siblings text with elements
+
+Displaying inside `glazyBegin()` with echoed text then an element such as a `<span>` then more text will group the text together at the end. A way around this is to echo all output as IDs, such as `#glazy_RANDOM_element34_begin`, `#glazy_RANDOM_element34_finish` and find and replace after all tags and attributes.

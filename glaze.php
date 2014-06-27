@@ -5,7 +5,7 @@ Author 2013, 2014: Patrick Smith
 This content is released under the MIT License: http://opensource.org/licenses/MIT
 */
 
-define ('GLAZE_VERSION', '1.6.4');
+define ('GLAZE_VERSION', '1.6.5');
 
 define ('GLAZE_TYPE_TEXT', 'text');
 define ('GLAZE_TYPE_URL', 'URL');
@@ -241,6 +241,16 @@ function glazeElementTagNameBelongsInHead($tagName)
 	endswitch;
 }
 
+function glazeElementTagAddNewLineAfterOpening($tagName)
+{
+	return glazeElementTagNameIsBlockLevel($tagName) || ($tagName === 'label');
+}
+
+function glazeElementTagAddNewLineAfterClosing($tagName)
+{
+	return glazeElementTagNameIsBlockLevel($tagName) || glazeElementTagNameBelongsInHead($tagName) || ($tagName === 'label');
+}
+
 
 /* Feeling Glazy? */
 
@@ -312,7 +322,7 @@ function &glazyEnsureOpeningTag()
 		echo glazyCopyAndCleanElementsBuffer();
 		echo '>';
 		
-		if (glazeElementTagNameIsBlockLevel($latestOpenElement['tagName'])) {
+		if (glazeElementTagAddNewLineAfterOpening($latestOpenElement['tagName'])) {
 			echo "\n";
 		}
 		
@@ -447,7 +457,7 @@ function glazyElement($tagNameOrElementOptions, $contentsValue = null, $valueTyp
 		echo "</$tagName>";
 	endif;
 	
-	if (glazeElementTagNameIsBlockLevel($tagName) || glazeElementTagNameBelongsInHead($tagName)):
+	if (glazeElementTagAddNewLineAfterClosing($tagName)):
 		echo "\n";
 	endif;
 }
@@ -460,7 +470,7 @@ function glazyPrintR($object)
 
 function glazyBegin($tagNameOrElementOptions, $valueType = GLAZE_TYPE_PREGLAZED)
 // TODO: Possibly the tagName in glazyBegin() would be optional,
-//       or another begin function could be created, - glazyPrepare(), glazyServe()
+//       or another begin function could be created - glazyPrepare(), glazyServe()
 //       allowing you to wrap a whole bunch of elements easily together
 //       and ensure they are closed.
 {
@@ -548,7 +558,7 @@ function glazyFinish($openedElementInfo = null)
 			echo "</$tagName>";
 		}
 		
-		if (glazeElementTagNameIsBlockLevel($tagName) || glazeElementTagNameBelongsInHead($tagName)) {
+		if (glazeElementTagAddNewLineAfterClosing($tagName)) {
 			echo "\n";
 		}
 		
