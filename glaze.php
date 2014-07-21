@@ -1,11 +1,11 @@
 <?php
 /*
-Author 2013, 2014: Patrick Smith
+Copyright 2013, 2014: Patrick Smith
 
 This content is released under the MIT License: http://opensource.org/licenses/MIT
 */
 
-define ('GLAZE_VERSION', '1.6.5');
+define ('GLAZE_VERSION', '1.7.0');
 
 define ('GLAZE_TYPE_TEXT', 'text');
 define ('GLAZE_TYPE_URL', 'URL');
@@ -13,6 +13,19 @@ define ('GLAZE_TYPE_EMAIL_ADDRESS', 'emailAddress');
 define ('GLAZE_TYPE_EMAIL_ADDRESS_MAILTO_URL', 'emailAddressMailtoURL');
 define ('GLAZE_TYPE_SPACED_LIST_ATTRIBUTE', 'spacedListAttribute');
 define ('GLAZE_TYPE_PREGLAZED', 'preglazed');
+
+
+if (!function_exists('burntCheck')):
+	function burntCheck(&$valueToCheck, $default = null)
+	{
+		if (!empty($valueToCheck)) {
+			return $valueToCheck;
+		}
+		else {
+			return $default;
+		}
+	}
+endif;
 
 
 function glazeText($string)
@@ -569,6 +582,42 @@ function glazyFinish($openedElementInfo = null)
 function glazyClose($openedElementInfo = null)
 {
 	glazyFinish($openedElementInfo);
+}
+
+
+function glazyMultipleBegin($baseElementOptions = array())
+{
+	if (!empty($baseElementOptions)):
+		$baseElementInfo = glazyElementInfoForPassedOptions($baseElementOptions);
+	else:
+		$baseElementInfo = array();
+	endif;
+	
+	return array(
+		'baseElementInfo' => $baseElementInfo,
+		'elements' => array()
+	);
+}
+
+function glazyMultipleAddElement(&$glazyMultiple, $elementOptions, $contentsValue = null, $valueType = null)
+{
+	$elementOptions = array_merge($glazyMultiple['baseElementInfo'], $elementOptions);
+	$glazyMultiple['elements'][] = array($elementOptions, $contentsValue, $valueType);
+}
+
+function glazyMultipleFinishSiblings(&$glazyMultiple, $spacing = '')
+{
+	$count = count($glazyMultiple['elements']);
+	$i = 0;
+	foreach ($glazyMultiple['elements'] as $preparedElement):
+		glazyElement($preparedElement[0], burntCheck($preparedElement[1]), burntCheck($preparedElement[2]));
+		//call_user_func_array('glazyElement', $preparedElement);
+			
+		$i++;
+		if ($i < $count):
+			echo $spacing;
+		endif;
+	endforeach;
 }
 
 /*
