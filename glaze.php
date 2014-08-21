@@ -5,7 +5,7 @@ Copyright 2013, 2014: Patrick Smith
 This content is released under the MIT License: http://opensource.org/licenses/MIT
 */
 
-define ('GLAZE_VERSION', '1.7.0');
+define ('GLAZE_VERSION', '1.8.0');
 
 define ('GLAZE_TYPE_TEXT', 'text');
 define ('GLAZE_TYPE_URL', 'URL');
@@ -13,6 +13,9 @@ define ('GLAZE_TYPE_EMAIL_ADDRESS', 'emailAddress');
 define ('GLAZE_TYPE_EMAIL_ADDRESS_MAILTO_URL', 'emailAddressMailtoURL');
 define ('GLAZE_TYPE_SPACED_LIST_ATTRIBUTE', 'spacedListAttribute');
 define ('GLAZE_TYPE_PREGLAZED', 'preglazed');
+
+define ('GLAZE_PREPARE_CONTENT', 'prepareContent');
+define ('GLAZE_PREPARE_ELEMENT', 'prepareElement');
 
 
 if (!function_exists('burntCheck')):
@@ -41,7 +44,8 @@ function glazeURL($stringURL)
 	return glazeText($stringURL);
 }
 
-/* private */ function glazeNumericallyEncodeString($string)
+// PRIVATE
+function glazeNumericallyEncodeString($string)
 {
 	// Based on http://github.com/mdesign/md.spam_me_not.ee_addon/blob/master/plugins/pi.md_spam_me_not.php
 	$stringLength = strlen($string);
@@ -111,7 +115,8 @@ function garnishNumberWithOrdinals($number)
 /* Attributes */
 
 // Used to automatically pick out the type of certain attributes.
-/* private */ function glazeTypeForAttributeName($attributeName)
+// PRIVATE
+function glazeTypeForAttributeName($attributeName)
 {
 	$attributeName = strtolower($attributeName);
 	
@@ -125,7 +130,8 @@ function garnishNumberWithOrdinals($number)
 	return GLAZE_TYPE_TEXT;
 }
 
-/* private */ function glazeAttribute($attributeName, $attributeValue, $valueType = null)
+// PRIVATE
+function glazeAttribute($attributeName, $attributeValue, $valueType = null)
 {
 	if (is_array($attributeValue) && isset($attributeValue['valueType'])) {
 		$attributeOptions = $attributeValue;
@@ -153,7 +159,8 @@ function garnishNumberWithOrdinals($number)
 	}
 }
 
-/* private */ function glazeAttributeCheck($attributeName, &$attributeValueToCheck, $attributeValueToUse = null, $valueType = null)
+// PRIVATE
+function glazeAttributeCheck($attributeName, &$attributeValueToCheck, $attributeValueToUse = null, $valueType = null)
 {
 	if (empty($attributeValueToCheck)) {
 		return '';
@@ -267,94 +274,98 @@ function glazeElementTagAddNewLineAfterClosing($tagName)
 
 /* Feeling Glazy? */
 
-/* private */ function &glazyGetOpenElements($begin = false)
+// PRIVATE
+function glazyHasOpenElements()
 {
 	global $glazyOpenElements;
 	
-	if ($begin and !isset($glazyOpenElements)) {
-		$glazyOpenElements = array();
-	}
-	
-	return $glazyOpenElements;
+	return !empty($glazyOpenElements);
 }
 
-/* private */ function &glazyGetElementsBuffer($options = null)
+// PRIVATE
+function glazyGetLatestOpenElementValueForKey($key)
 {
-	global $glazyElementsBuffer;
+	global $glazyOpenElements;
 	
-	if (isset($options['clean'])) {
-		$glazyElementsBuffer = null; // See http://au1.php.net/unset
-	}
+	$latestOpenElement = $glazyOpenElements[count($glazyOpenElements) - 1];
 	
-	if (isset($options['begin'])) {
-		if (!isset($glazyElementsBuffer)) {
-			$glazyElementsBuffer = '';
-		}
-	}
+	$value = burntCheck($latestOpenElement[$key]);
 	
-	return $glazyElementsBuffer;
+	return $value;
 }
 
-/* private */ function glazyAddToElementsBuffer($string)
+// PRIVATE
+function glazySetLatestOpenElementKeyReturningOldValue($key, $value)
 {
-	$glazyElementsBuffer = &glazyGetElementsBuffer();
-	// If elements buffer is being used append it there, otherwise just display as is.
-	if (isset($glazyElementsBuffer)) {
-		$glazyElementsBuffer .= $string;
+	global $glazyOpenElements;
+	
+	$latestOpenElement = &$glazyOpenElements[count($glazyOpenElements) - 1];
+	
+	$oldValue = burntCheck($latestOpenElement[$key]);
+	$latestOpenElement[$key] = $value;
+	
+	return $oldValue;
+}
+
+// ATTRIBUTES BUFFER
+
+// PRIVATE
+function glazyBeginAttributesBufferIfNeeded()
+{
+	global $glazyAttributesBuffer;
+	
+	if (!isset($glazyAttributesBuffer)) {
+		$glazyAttributesBuffer = '';
+	}
+}
+
+// PRIVATE
+function glazyAddToAttributesBuffer($string)
+{
+	global $glazyAttributesBuffer;
+	
+	// If elements buffer is being used, append it there, otherwise just display as is.
+	if (isset($glazyAttributesBuffer) && glazyHasOpenElements() && !glazyGetLatestOpenElementValueForKey('openingTagDone')) {
+		$glazyAttributesBuffer .= $string;
 	}
 	else {
 		echo $string;
 	}
 }
 
-/* private */ function glazyCopyAndCleanElementsBuffer()
+// PRIVATE
+function glazyCopyAndCleanAttributesBuffer()
 {
-	$glazyElementsBuffer = glazyGetElementsBuffer();
-	$copy = $glazyElementsBuffer;
+	global $glazyAttributesBuffer;
 	
-	glazyGetElementsBuffer(array('clean' => true));
+	$copy = $glazyAttributesBuffer;
+	$glazyAttributesBuffer = '';
 	
 	return $copy;
 }
 
-function &glazyEnsureOpeningTag()
+function glazyEnsureOpeningTag()
 {
-	$glazyOpenElements = &glazyGetOpenElements();
-	if (empty($glazyOpenElements)) {
-		// Return by reference is pretty bad
-		// but only way I can think to structure this
-		// without classes.
-		// Means we have to jump through hoops like this:
-		$empty = null;
-		return $empty;
+	if (!glazyHasOpenElements()) {
+		return;
 	}
 	
-	$latestOpenElement = &$glazyOpenElements[count($glazyOpenElements) - 1];
-	
-	if (!$latestOpenElement['openingTagDone']) {
-		echo glazyCopyAndCleanElementsBuffer();
+	// If opening tag hasn't been done yet
+	if (!glazySetLatestOpenElementKeyReturningOldValue('openingTagDone', true)) {
+		echo glazyCopyAndCleanAttributesBuffer();
 		echo '>';
 		
-		if (glazeElementTagAddNewLineAfterOpening($latestOpenElement['tagName'])) {
+		if (glazeElementTagAddNewLineAfterOpening(glazyGetLatestOpenElementValueForKey('tagName'))) {
 			echo "\n";
 		}
-		
-		$latestOpenElement['openingTagDone'] = true;
 	}
-	
-	return $latestOpenElement;
-}
-
-function glazyEnsureOpeningTagForLatestElementIsDisplayed()
-{
-	glazyEnsureOpeningTag();
 }
 
 function glazyBeginContent($contentValueType = GLAZE_TYPE_PREGLAZED)
 {
-	$latestOpenElement = &glazyEnsureOpeningTag();
+	glazyEnsureOpeningTag();
 	
-	$latestOpenElement['valueType'] = $contentValueType;
+	glazySetLatestOpenElementKeyReturningOldValue('contentType', $contentValueType);
 }
 
 /* Glazy Attributes */
@@ -364,14 +375,14 @@ function glazyAttribute($attributeName, $attributeValue, $valueType = null)
 {
 	$string = glazeAttribute($attributeName, $attributeValue, $valueType);
 	
-	glazyAddToElementsBuffer($string);
+	glazyAddToAttributesBuffer($string);
 }
 
 function glazyAttributeCheck($attributeName, &$attributeValueToCheck, $attributeValueToUse = null, $valueType = null)
 {
 	$string = glazeAttributeCheck($attributeName, $attributeValueToCheck, $attributeValueToUse, $valueType);
 	
-	glazyAddToElementsBuffer($string);
+	glazyAddToAttributesBuffer($string);
 }
 
 function glazyAttributesArray($attributes)
@@ -386,18 +397,24 @@ function glazyAttributesArray($attributes)
 }
 
 
-function glazyContent($contentsValue, $valueType = GLAZE_TYPE_PREGLAZED)
+function glazyContent($contentValue, $contentType = GLAZE_TYPE_TEXT)
 {
-	glazyBeginContent($valueType);
-	echo $contentsValue;
+	// FIXME: changing the content type midway is not supported.
+//	if (false && glazyHasOpenElements()):
+//		glazyBeginContent($contentType);
+//		echo $contentValue;
+//	else:
+	echo glazeValue($contentValue, $contentType);
+//	endif;
 	
 	// Do not escape twice, as currently this is
 	// handled in glazyFinish() using ob_start() etc.
-	///echo glazeValue($contentsValue, $valueType);
+	///echo glazeValue($contentValue, $contentType);
 }
 
 
-/* private */ function glazyElementInfoForPassedOptions($tagNameOrElementOptions)
+// PRIVATE
+function glazyElementInfoForPassedOptions($tagNameOrElementOptions)
 {
 	$attributes = array();
 	
@@ -444,16 +461,88 @@ function glazyContent($contentsValue, $valueType = GLAZE_TYPE_PREGLAZED)
 	);
 }
 
-function glazyElement($tagNameOrElementOptions, $contentsValue = null, $valueType = null)
+function glazyPrepareContentWithSpacing($contentValue, $contentType = GLAZE_TYPE_TEXT, $spacing = '')
 {
-	glazyEnsureOpeningTag();
+	return array(
+		'glazyPrepare' => GLAZE_PREPARE_CONTENT,
+		'contentValue' => $contentValue,
+		'contentType' => $contentType,
+		'spacing' => $spacing
+	);
+}
+
+function glazyPrepareContentJoined($contentValue, $contentType = GLAZE_TYPE_TEXT)
+{
+	return glazyPrepareContentWithSpacing($contentValue, $contentType, '');
+}
+
+function glazyPrepareContentWithLineBreaks($contentValue, $contentType = GLAZE_TYPE_TEXT)
+{
+	return glazyPrepareContentWithSpacing($contentValue, $contentType, '<br>');
+}
+
+function glazyPrepareContentWithUnsafeHTML($contentValue)
+{
+	return glazyPrepareContentWithSpacing($contentValue, GLAZE_TYPE_PREGLAZED, '');
+}
+
+function glazyServeContent($preparedInfo)
+{
+	$contentValue = $preparedInfo['contentValue'];
+	$contentType = $preparedInfo['contentType'];
+	$spacing = $preparedInfo['spacing'];
 	
-	
+	// If is ordered-array:
+	if (is_array($contentValue)):
+		$contentValueArray = (array)$contentValue;
+		$count = count($contentValueArray);
+		$i = 0;
+		foreach ($contentValueArray as $contentValueItem):
+			glazyServe($contentValueItem, $contentType);
+		
+			$i++;
+			if ($i < $count):
+				echo $spacing;
+			endif;
+		endforeach;
+	// If is string:
+	elseif (is_string($contentValue)):
+		glazyContent($contentValue, $contentType);
+	endif;
+}
+
+function glazyPrepareElement($tagNameOrElementOptions, $contentValue = null, $contentType = GLAZE_TYPE_TEXT)
+{
 	$elementInfo = glazyElementInfoForPassedOptions($tagNameOrElementOptions);
-	$tagName = $elementInfo['tagName'];
-	$attributes = $elementInfo['attributes'];
 	
+	if (!isset($contentValue)):
+		$innerPreparedInfo = null;
+	elseif (!empty($contentValue['glazyPrepare'])):
+		$innerPreparedInfo = $contentValue;
+	else:
+		$innerPreparedInfo = glazyPrepareContentJoined($contentValue, $contentType);
+	endif;
 	
+	$elementInfo['glazyPrepare'] = GLAZE_PREPARE_ELEMENT;
+	$elementInfo['innerPreparedInfo'] = $innerPreparedInfo;
+	
+	return $elementInfo;
+}
+
+function glazyPrepareLinkToURL($URL, $innerPreparedInfo = null)
+{
+	return glazyPrepareElement(array(
+		'tagName' => 'a',
+		'href' => $URL
+	), $innerPreparedInfo);
+}
+
+function glazyServeElement($preparedInfo)
+{
+	$tagName = $preparedInfo['tagName'];
+	$attributes = $preparedInfo['attributes'];
+	
+	glazyEnsureOpeningTag();
 	echo "<$tagName";
 	
 	if (!empty($attributes)):
@@ -462,8 +551,9 @@ function glazyElement($tagNameOrElementOptions, $contentsValue = null, $valueTyp
 	
 	echo '>';
 	
-	if (isset($contentsValue)):
-		echo glazeValue($contentsValue, $valueType);
+	$innerPreparedInfo = $preparedInfo['innerPreparedInfo'];
+	if (isset($innerPreparedInfo)):
+		glazyServe($innerPreparedInfo);
 	endif;
 	
 	if (!glazeElementTagNameIsSelfClosing($tagName)):
@@ -475,42 +565,67 @@ function glazyElement($tagNameOrElementOptions, $contentsValue = null, $valueTyp
 	endif;
 }
 
+function glazyServe($preparedInfo, $contentType = GLAZE_TYPE_TEXT)
+{
+	if (is_string($preparedInfo)):
+		$contentValue = $preparedInfo;
+		glazyContent($contentValue, $contentType);
+	elseif (is_array($preparedInfo) && !empty($preparedInfo['glazyPrepare'])):
+		$prepareType = $preparedInfo['glazyPrepare'];
+		if ($prepareType == GLAZE_PREPARE_CONTENT):
+			glazyServeContent($preparedInfo);
+		elseif ($prepareType == GLAZE_PREPARE_ELEMENT):
+			glazyServeElement($preparedInfo);
+		endif;
+	endif;
+}
+
+function glazyElement($tagNameOrElementOptions, $contentValue = null, $contentType = GLAZE_TYPE_TEXT)
+{
+	glazyServeElement(glazyPrepareElement($tagNameOrElementOptions, $contentValue, $contentType));
+}
+
 /* Convenience for lazy debugging */
 function glazyPrintR($object)
 {
 	glazyElement('pre', print_r($object, true));
 }
 
-function glazyBegin($tagNameOrElementOptions, $valueType = GLAZE_TYPE_PREGLAZED)
+function glazyBegin($tagNameOrElementOptions, $contentType = GLAZE_TYPE_PREGLAZED)
 // TODO: Possibly the tagName in glazyBegin() would be optional,
 //       or another begin function could be created - glazyPrepare(), glazyServe()
 //       allowing you to wrap a whole bunch of elements easily together
 //       and ensure they are closed.
 {
+	global $glazyOpenElements;
+	
 	glazyEnsureOpeningTag();
 	
-	$elementInfo = glazyElementInfoForPassedOptions($tagNameOrElementOptions);
+	$elementInfo = glazyPrepareElement($tagNameOrElementOptions);
 	$tagName = $elementInfo['tagName'];
 	$attributes = $elementInfo['attributes'];
 	
 	
 	echo "<$tagName";
 	
-	$elementsBuffer = &glazyGetElementsBuffer(array('begin' => true));
-	$openElements = &glazyGetOpenElements(true);
-	$openElementsCount = count($openElements);
+	glazyBeginAttributesBufferIfNeeded();
 	
-	if (empty($openElements)) {
+	if (!isset($glazyOpenElements)) {
+		$glazyOpenElements = array();
+	}
+	$openElementsCountBefore = count($glazyOpenElements);
+	
+	if (empty($glazyOpenElements)) {
 		ob_start();
 	}
 	else {
 		ob_start();
 	}
 	
-	$openElements[] = array(
+	$glazyOpenElements[] = array(
 		'tagName' => $tagName,
 		'openingTagDone' => false,
-		'valueType' => $valueType
+		'contentType' => $contentType
 	);
 	
 	if (!empty($attributes)):
@@ -521,7 +636,7 @@ function glazyBegin($tagNameOrElementOptions, $valueType = GLAZE_TYPE_PREGLAZED)
 	return array(
 		'_glazyBegin_' => true,
 		'tagName' => $tagName,
-		'previousOpenElementsCount' => $openElementsCount
+		'previousOpenElementsCount' => $openElementsCountBefore
 	);
 }
 
@@ -532,13 +647,13 @@ function glazyIsOpenElement($value)
 
 function glazyFinish($openedElementInfo = null)
 {
-	$openElements = &glazyGetOpenElements();
+	global $glazyOpenElements;
 	
 	$repeatCount = 1;
 	
 	if (!empty($openedElementInfo['previousOpenElementsCount'])) {
 		$previousCount = $openedElementInfo['previousOpenElementsCount'];
-		$currentCount = count($openElements);
+		$currentCount = count($glazyOpenElements);
 		$repeatCount = $currentCount - $previousCount;
 	}
 	
@@ -549,11 +664,13 @@ function glazyFinish($openedElementInfo = null)
 	glazyEnsureOpeningTag();
 	
 	while ($repeatCount--):
-		$elementInfo = array_pop($openElements);
-		$valueType = $elementInfo['valueType'];
+		$elementInfo = array_pop($glazyOpenElements);
+		
+		$tagName = $elementInfo['tagName'];
+		$contentType = $elementInfo['contentType'];
 		
 		if (!empty($outputtedString)) {
-			if ($valueType === GLAZE_TYPE_PREGLAZED) {
+			if ($contentType === GLAZE_TYPE_PREGLAZED) {
 				echo $outputtedString;
 			}
 			else {
@@ -561,11 +678,10 @@ function glazyFinish($openedElementInfo = null)
 				// Might be completely useless?
 				// Is useful for WordPress the_title(), etc?
 				// But that is already escaped.
-				echo glazeValue($outputtedString, $valueType);
+				echo glazeValue($outputtedString, $contentType);
 			}
 		}
 		
-		$tagName = $elementInfo['tagName'];
 		
 		if (!glazeElementTagNameIsSelfClosing($tagName)) {
 			echo "</$tagName>";
@@ -578,66 +694,3 @@ function glazyFinish($openedElementInfo = null)
 		$outputtedString = null;
 	endwhile;
 }
-
-function glazyClose($openedElementInfo = null)
-{
-	glazyFinish($openedElementInfo);
-}
-
-
-function glazyMultipleBegin($baseElementOptions = array())
-{
-	if (!empty($baseElementOptions)):
-		$baseElementInfo = glazyElementInfoForPassedOptions($baseElementOptions);
-	else:
-		$baseElementInfo = array();
-	endif;
-	
-	return array(
-		'baseElementInfo' => $baseElementInfo,
-		'elements' => array()
-	);
-}
-
-function glazyMultipleAddElement(&$glazyMultiple, $elementOptions, $contentsValue = null, $valueType = null)
-{
-	$elementOptions = array_merge($glazyMultiple['baseElementInfo'], $elementOptions);
-	$glazyMultiple['elements'][] = array($elementOptions, $contentsValue, $valueType);
-}
-
-function glazyMultipleFinishSiblings(&$glazyMultiple, $spacing = '')
-{
-	$count = count($glazyMultiple['elements']);
-	$i = 0;
-	foreach ($glazyMultiple['elements'] as $preparedElement):
-		glazyElement($preparedElement[0], burntCheck($preparedElement[1]), burntCheck($preparedElement[2]));
-		//call_user_func_array('glazyElement', $preparedElement);
-			
-		$i++;
-		if ($i < $count):
-			echo $spacing;
-		endif;
-	endforeach;
-}
-
-/*
-// Experimental
-// For easy nesting of elements and text
-function glazyLayer()
-{
-	$openElements = array();
-	
-	$numberOfArguments = func_num_args();
-	for ($i = 0; $i < $numberOfArguments; $i++):
-		$currentArgument = func_get_arg($i);
-		if (glazyIsOpenElement($currentArgument)):
-			$openElements[] = $currentArgument;
-		elseif (is_string($currentArgument)):
-			echo glazeText($currentArgument);
-		endif;
-	endfor;
-	
-	// Close all open elements in the correct order.
-	array_walk(array_reverse($openElements), 'glazyFinish');
-}
-*/
