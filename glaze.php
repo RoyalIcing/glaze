@@ -96,6 +96,7 @@ function glazeValue($value, $valueType = null)
 
 /* Garnish */
 
+// Returns a number as 1st, 2nd, 3rd, 4th...
 function garnishNumberWithOrdinals($number)
 {
 	$lastUnit = $number % 10;
@@ -486,11 +487,11 @@ function glazyPrepareContentWithUnsafeHTML($contentValue)
 	return glazyPrepareContentWithSpacing($contentValue, GLAZE_TYPE_PREGLAZED, '');
 }
 
-function glazyServeContent($preparedInfo)
+function glazyServeContent($preparedContent)
 {
-	$contentValue = $preparedInfo['contentValue'];
-	$contentType = $preparedInfo['contentType'];
-	$spacing = $preparedInfo['spacing'];
+	$contentValue = $preparedContent['contentValue'];
+	$contentType = $preparedContent['contentType'];
+	$spacing = $preparedContent['spacing'];
 	
 	// If is ordered-array:
 	if (is_array($contentValue)):
@@ -529,6 +530,7 @@ function glazyPrepareElement($tagNameOrElementOptions, $contentValue = null, $co
 	return $elementInfo;
 }
 
+// TODO work out where extra attributes go for this and document it.
 function glazyPrepareLinkToURL($URL, $innerPreparedInfo = null)
 {
 	return glazyPrepareElement(array(
@@ -537,10 +539,10 @@ function glazyPrepareLinkToURL($URL, $innerPreparedInfo = null)
 	), $innerPreparedInfo);
 }
 
-function glazyServeElement($preparedInfo)
+function glazyServeElement($preparedElement)
 {
-	$tagName = $preparedInfo['tagName'];
-	$attributes = $preparedInfo['attributes'];
+	$tagName = $preparedElement['tagName'];
+	$attributes = $preparedElement['attributes'];
 	
 	glazyEnsureOpeningTag();
 	echo "<$tagName";
@@ -551,7 +553,7 @@ function glazyServeElement($preparedInfo)
 	
 	echo '>';
 	
-	$innerPreparedInfo = $preparedInfo['innerPreparedInfo'];
+	$innerPreparedInfo = $preparedElement['innerPreparedInfo'];
 	if (isset($innerPreparedInfo)):
 		glazyServe($innerPreparedInfo);
 	endif;
@@ -565,17 +567,17 @@ function glazyServeElement($preparedInfo)
 	endif;
 }
 
-function glazyServe($preparedInfo, $contentType = GLAZE_TYPE_TEXT)
+function glazyServe($preparedInfoOrString, $contentType = GLAZE_TYPE_TEXT)
 {
-	if (is_string($preparedInfo)):
-		$contentValue = $preparedInfo;
+	if (is_string($preparedInfoOrString)):
+		$contentValue = $preparedInfoOrString;
 		glazyContent($contentValue, $contentType);
-	elseif (is_array($preparedInfo) && !empty($preparedInfo['glazyPrepare'])):
-		$prepareType = $preparedInfo['glazyPrepare'];
+	elseif (is_array($preparedInfoOrString) && !empty($preparedInfoOrString['glazyPrepare'])):
+		$prepareType = $preparedInfoOrString['glazyPrepare'];
 		if ($prepareType == GLAZE_PREPARE_CONTENT):
-			glazyServeContent($preparedInfo);
+			glazyServeContent($preparedInfoOrString);
 		elseif ($prepareType == GLAZE_PREPARE_ELEMENT):
-			glazyServeElement($preparedInfo);
+			glazyServeElement($preparedInfoOrString);
 		endif;
 	endif;
 }
