@@ -7,11 +7,11 @@ Glaze
 
 Normally people use functions like `htmlspecialchars()`, or they even madly paste text into their source code and manually change characters like `&` into `&amp;` and `>` into `&gt;`.
 
-Well there’s these things called computers and you can avoid all that manual work and use whatever baking-inspired function names you like.
+Well there’s these things called computers and you can avoid all that manual work and use much more powerful functions with baking-inspired names.
 
 ## Glaze preserves the content you want to display.
 
-Just tell it what you want to display and let it worry about the HTML writing and escaping part. It works with elements, attributes, text, URLs, and email addresses.
+Just tell it what you want to display and let it worry about the HTML writing and escaping part. It works with nested HTML elements, attributes, text, URLs, and email addresses. My aim is to make it easier to read and write than the usual PHP ways, whilst also taking care of escaping everything by default.
 
 
 ## Whole elements
