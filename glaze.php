@@ -5,7 +5,7 @@ Copyright 2013, 2014: Patrick Smith
 This content is released under the MIT License: http://opensource.org/licenses/MIT
 */
 
-define ('GLAZE_VERSION', '1.8.0');
+define ('GLAZE_VERSION', '1.9.0');
 
 define ('GLAZE_TYPE_TEXT', 'text');
 define ('GLAZE_TYPE_URL', 'URL');
@@ -243,6 +243,10 @@ function glazeElementTagNameIsBlockLevel($tagName)
 		case 'li':
 		case 'nav':
 			return true;
+		case 'html':
+		case 'head':
+		case 'body':
+			return true;
 		default:
 			return false;
 	endswitch;
@@ -274,6 +278,11 @@ function glazeElementTagAddNewLineAfterClosing($tagName)
 
 
 /* Feeling Glazy? */
+
+function glazyCheckContent(&$potentialContent)
+{
+	return burntCheck($potentialContent, false);
+}
 
 // PRIVATE
 function glazyHasOpenElements()
@@ -462,36 +471,40 @@ function glazyElementInfoForPassedOptions($tagNameOrElementOptions)
 	);
 }
 
-function glazyPrepareContentWithSpacing($contentValue, $contentType = GLAZE_TYPE_TEXT, $spacing = '')
+function glazyPrepareContentJoinedBy($contentValue, $contentType = GLAZE_TYPE_TEXT, $spacingHTML = '')
 {
+	if (empty($contentValue)):
+		return $contentValue;
+	endif;
+	
 	return array(
 		'glazyPrepare' => GLAZE_PREPARE_CONTENT,
 		'contentValue' => $contentValue,
 		'contentType' => $contentType,
-		'spacing' => $spacing
+		'spacingHTML' => $spacingHTML
 	);
 }
 
-function glazyPrepareContentJoined($contentValue, $contentType = GLAZE_TYPE_TEXT)
+function glazyPrepareContent($contentValue, $contentType = GLAZE_TYPE_TEXT)
 {
-	return glazyPrepareContentWithSpacing($contentValue, $contentType, '');
+	return glazyPrepareContentJoinedBy($contentValue, $contentType, "\n");
 }
 
-function glazyPrepareContentWithLineBreaks($contentValue, $contentType = GLAZE_TYPE_TEXT)
+function glazyPrepareContentJoinedByLineBreaks($contentValue, $contentType = GLAZE_TYPE_TEXT)
 {
-	return glazyPrepareContentWithSpacing($contentValue, $contentType, '<br>');
+	return glazyPrepareContentJoinedBy($contentValue, $contentType, '<br>');
 }
 
 function glazyPrepareContentWithUnsafeHTML($contentValue)
 {
-	return glazyPrepareContentWithSpacing($contentValue, GLAZE_TYPE_PREGLAZED, '');
+	return glazyPrepareContentJoinedBy($contentValue, GLAZE_TYPE_PREGLAZED, '');
 }
 
 function glazyServeContent($preparedContent)
 {
 	$contentValue = $preparedContent['contentValue'];
 	$contentType = $preparedContent['contentType'];
-	$spacing = $preparedContent['spacing'];
+	$spacingHTML = $preparedContent['spacingHTML'];
 	
 	// If is ordered-array:
 	if (is_array($contentValue)):
@@ -499,11 +512,14 @@ function glazyServeContent($preparedContent)
 		$count = count($contentValueArray);
 		$i = 0;
 		foreach ($contentValueArray as $contentValueItem):
-			glazyServe($contentValueItem, $contentType);
-		
 			$i++;
-			if ($i < $count):
-				echo $spacing;
+			
+			if (!empty($contentValueItem)):
+				glazyServe($contentValueItem, $contentType);
+		
+				if ($i < $count):
+					echo $spacingHTML;
+				endif;
 			endif;
 		endforeach;
 	// If is string:
@@ -514,6 +530,10 @@ function glazyServeContent($preparedContent)
 
 function glazyPrepareElement($tagNameOrElementOptions, $contentValue = null, $contentType = GLAZE_TYPE_TEXT)
 {
+	if ($contentValue === false):
+		return false;
+	endif;
+	
 	$elementInfo = glazyElementInfoForPassedOptions($tagNameOrElementOptions);
 	
 	if (!isset($contentValue)):
@@ -521,7 +541,7 @@ function glazyPrepareElement($tagNameOrElementOptions, $contentValue = null, $co
 	elseif (!empty($contentValue['glazyPrepare'])):
 		$innerPreparedInfo = $contentValue;
 	else:
-		$innerPreparedInfo = glazyPrepareContentJoined($contentValue, $contentType);
+		$innerPreparedInfo = glazyPrepareContentJoinedBy($contentValue, $contentType, '');
 	endif;
 	
 	$elementInfo['glazyPrepare'] = GLAZE_PREPARE_ELEMENT;
@@ -541,6 +561,10 @@ function glazyPrepareLinkToURL($URL, $innerPreparedInfo = null)
 
 function glazyServeElement($preparedElement)
 {
+	if (empty($preparedElement)):
+		return;
+	endif;
+	
 	$tagName = $preparedElement['tagName'];
 	$attributes = $preparedElement['attributes'];
 	
@@ -552,6 +576,10 @@ function glazyServeElement($preparedElement)
 	endif;
 	
 	echo '>';
+	
+	if (glazeElementTagAddNewLineAfterOpening($tagName)):
+		echo "\n";
+	endif;
 	
 	$innerPreparedInfo = $preparedElement['innerPreparedInfo'];
 	if (isset($innerPreparedInfo)):

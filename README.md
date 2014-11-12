@@ -82,7 +82,19 @@ glazyAttributeCheck('class', $classNames);
 Using JSON from a web API, for example.
 
 ```php
-$info = json_decode($jsonString, true); // true: decodes as an array
+$info = array(
+	'itemID' => 'fddf3tq3tt3t3',
+	'published' => false,
+	'genreIdentifier' => 'thriller',
+	'salesCount' => 56,
+	'selected' => true,
+	'authorName' => 'John Smith',
+	'itemDescription' => array(
+		'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+		'Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
+		'Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.'
+	)
+);
 
 // Build a list of classes using an array, don't fuss with appending to a string
 $classNamesArray = array('item', 'book');
@@ -93,19 +105,22 @@ $classNamesArray[] = 'genre-' .$info['genreIdentifier']; // e.g. 'genre-thriller
 $bookItemDiv = glazyBegin('div');
 {
 	glazyAttribute('id', "bookItem-{$info['itemID']}");
-	
+
 	// Lets you use an array of strings for class attributes.
 	glazyAttribute('class', $classNamesArray);
 
 	// Only display the attribute if variable reference $info['salesCount'] is present.
 	glazyAttributeCheck('data-sales-count', $info['salesCount']);
-	
+	glazyAttributeCheck('data-sales-count', $info['salesCount_NOPE']);
+
 	// Only displays the attribute, with the value 'selected', if $info['selected'] is true.
 	glazyAttributeCheck('selected', $info['selected'], 'selected');
-	
-	glazyElement('h5.authorName', $info['authorName']);
-	glazyElement('p.description', $info['itemDescription']);
-	
+	glazyAttributeCheck('selected-nope', $info['selected_NOPE'], 'selected');
+
+	glazyElement('h5.authorName', glazyCheckContent($info['authorName']));
+	glazyElement('p.description', glazyPrepareContentJoinedByLineBreaks(glazyCheckContent($info['itemDescription'])));
+	glazyElement('p.description', glazyPrepareContentJoinedByLineBreaks(glazyCheckContent($info['itemDescription_NOPE'])));
+
 	// Finish and close the </div>
 }
 glazyFinish($bookItemDiv);
@@ -181,16 +196,16 @@ void glazyServeElement( [ resource $preparedElement ] )
 
 
 // Prepare content but don’t display it yet.
-// If an array is passed for $contentValue, it is joined using $spacing. It can contain strings and other prepared content and elements.
-resource glazyPrepareContentWithSpacing( string/array $contentValue [, string $contentType = GLAZE_TYPE_TEXT, $spacing = '' ] )
+// If an array is passed for $contentValue, it is joined using $spacingHTML (default empty string). It can contain strings and other prepared elements and content.
+resource glazyPrepareContentJoinedBy( string/array $contentValue [, string $contentType = GLAZE_TYPE_TEXT, $spacingHTML = '' ] )
 
-// Prepare content joining items of $contentValue together with no spaces in between.
-resource glazyPrepareContentJoined( string/array $contentValue [, string $contentType = GLAZE_TYPE_TEXT ] )
+// Prepare content, inserting \n between each item of $contentValue.
+resource glazyPrepareContent( string/array $contentValue [, string $contentType = GLAZE_TYPE_TEXT ] )
 
-// Prepare content insert `<br>` line breaks between each item of $contentValue.
-resource glazyPrepareContentWithLineBreaks( string/array $contentValue [, string $contentType = GLAZE_TYPE_TEXT ] )
+// Prepare content, inserting visible line breaks (`<br>`) between each item of $contentValue.
+resource glazyPrepareContentJoinedByLineBreaks( string/array $contentValue [, string $contentType = GLAZE_TYPE_TEXT ] )
 
-// Prepare content with HTML, containing potentially unsafe <script> tags. Nothing is altered.
+// Prepare content with HTML containing potentially unsafe <script> tags. Nothing is altered.
 resource glazyPrepareContentWithUnsafeHTML( string $contentValue )
 
 // Display prepared content created using one of the glazyPrepareContent... functions.
@@ -198,7 +213,12 @@ void glazyServeContent( [ resource $preparedContent ] )
 
 
 // Display prepared element or content created using any of the glazyPrepare... functions, or a string.
-function glazyServe( $preparedInfoOrString [, $contentType = GLAZE_TYPE_TEXT ] )
+void glazyServe( $preparedInfoOrString [, $contentType = GLAZE_TYPE_TEXT ] )
+
+
+// Checks content exists (using `empty()`), returning false if not.
+// Glaze functions accepting content will just pass through if content is false.
+mixed/false glazyCheckContent( &$potentialContent )
 ```
 
 Base preserving (escaping) functions:

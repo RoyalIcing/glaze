@@ -1,0 +1,35 @@
+<!doctype html>
+<html>
+<head>
+<title>An example of using glaze.php</title>
+<meta charset="utf-8">
+</head>
+<body>
+<header>
+<h1>
+Glaze preserves your content by escaping any &lt;html&gt; characters.</h1>
+</header>
+<p>
+Your content should be stored as it was written. Escaping first makes it difficult when content is used outside of the web, such as in an app.</p>
+<p>
+You can easily format what you write, adding <strong>&lt;strong&gt;</strong> or <em>&lt;em&gt;</em> just by interspersing text with the function `glazyPrepareElement(tagName, content)`.</p>
+<h2>
+Check values before displaying.</h2>
+<div id="bookItem-fddf3tq3tt3t3" class="item book upcoming genre-thriller" data-sales-count="56" selected="selected">
+<h5 class="authorName">
+John Smith</h5>
+<p class="description">
+Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.<br>Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.<br>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</p>
+</div>
+<h2>
+Using already escaped information</h2>
+<img src="http://placehold.it/150x50" alt="Bangers &amp; Mash"><hr>
+
+<p>
+Updating this file by using: <br><code>php -f example-update.php</code></p>
+<p>
+Check this file with the last version by using: <br><code>php -f example-check.php</code></p>
+<p>
+You can download glaze.php from here: <a href="http://github.com/BurntCaramel/glaze">github.com/BurntCaramel/glaze</a></p>
+</body>
+</html>
