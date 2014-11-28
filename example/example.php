@@ -81,7 +81,7 @@ $html = glazyBegin('html');
 		
 		
 		
-		glazyElement('h2', 'Using already escaped information');
+		glazyElement('h2', 'These are already escaped &amp; &lt; &gt;', GLAZE_TYPE_PREGLAZED);
 		
 		
 		$img = glazyBegin('img');
@@ -92,6 +92,9 @@ $html = glazyBegin('html');
 			glazyAttribute('alt', $escapedText, GLAZE_TYPE_PREGLAZED);
 		}
 		glazyFinish($img);
+		
+		
+		
 		
 		
 		

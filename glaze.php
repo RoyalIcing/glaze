@@ -86,10 +86,10 @@ function glazeValue($value, $valueType = null)
 	else if ($valueType === GLAZE_TYPE_EMAIL_ADDRESS_MAILTO_URL) {
 		return glazeEmailAddressMailtoURL($value);
 	}
-	else if ($valueType === GLAZE_TYPE_SPACED_LIST_ATTRIBUTE && is_array($value)) {
+	
+	if (($valueType === GLAZE_TYPE_SPACED_LIST_ATTRIBUTE) && is_array($value)) {
 		$value = implode(' ', $value);
 	}
-	
 	
 	return glazeText($value);
 }
@@ -117,7 +117,7 @@ function garnishNumberWithOrdinals($number)
 
 // Used to automatically pick out the type of certain attributes.
 // PRIVATE
-function glazeTypeForAttributeName($attributeName)
+function glazeDefaultTypeForAttributeName($attributeName)
 {
 	$attributeName = strtolower($attributeName);
 	
@@ -141,7 +141,7 @@ function glazeAttribute($attributeName, $attributeValue, $valueType = null)
 	}
 	
 	if (empty($valueType)) {
-		$valueType = glazeTypeForAttributeName($attributeName);
+		$valueType = glazeDefaultTypeForAttributeName($attributeName);
 	}
 	
 	// Boolean false attribute (omitted)
@@ -242,6 +242,7 @@ function glazeElementTagNameIsBlockLevel($tagName)
 		// Also include list items
 		case 'li':
 		case 'nav':
+		case 'hr':
 			return true;
 		case 'html':
 		case 'head':
@@ -492,7 +493,7 @@ function glazyPrepareContent($contentValue, $contentType = GLAZE_TYPE_TEXT)
 
 function glazyPrepareContentJoinedByLineBreaks($contentValue, $contentType = GLAZE_TYPE_TEXT)
 {
-	return glazyPrepareContentJoinedBy($contentValue, $contentType, '<br>');
+	return glazyPrepareContentJoinedBy($contentValue, $contentType, "<br>\n");
 }
 
 function glazyPrepareContentWithUnsafeHTML($contentValue)
