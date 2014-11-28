@@ -30,7 +30,7 @@ $html = GlazePrepare::element('html');
 			GlazePrepare::element('strong', '<strong>'),
 			' or ',
 			GlazePrepare::element('em', '<em>'),
-			' just by interspersing text with the function `glazyPrepareElement(tagName, content)`.'
+			' just by interspersing text with `GlazePrepare::element(tagName, content)`.'
 		));
 		
 		
@@ -67,7 +67,7 @@ $html = GlazePrepare::element('html');
 
 			// Only display the attribute if variable reference $info['salesCount'] is present.
 			$bookItemDiv->setAttributeChecking('data-sales-count', $info['salesCount']);
-			$bookItemDiv->setAttributeChecking('data-sales-count', $info['salesCount_NOPE']);
+			$bookItemDiv->setAttributeChecking('data-sales-count-nope', $info['salesCount_NOPE']);
 	
 			// Only displays the attribute, with the value 'selected', if $info['selected'] is true.
 			$bookItemDiv->setAttributeChecking('selected', $info['selected'], 'selected');

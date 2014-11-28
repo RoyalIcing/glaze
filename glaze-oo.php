@@ -574,17 +574,22 @@ class GlazeServe
 	{
 		if (empty($preparedItem)):
 			return;
+		elseif ($preparedItem instanceof GlazePreparedItem):
+				$preparedItem->serve();
 		elseif (is_string($preparedItem)):
 			echo Glaze::value($preparedItem, $contentType);
-		elseif ($preparedItem instanceof GlazePreparedItem):
-			$preparedItem->serve();
 		endif;
+	}
+	
+	static public function element($tagNameOrElementOptions, $contentValue = null, $contentType = Glaze::TYPE_TEXT)
+	{
+		$element = GlazePrepare::element($tagNameOrElementOptions, $contentValue, $contentType);
+		self::serve($element);
 	}
 	
 	static public function printR($object)
 	{
-		$element = GlazePrepare::element('pre', print_r($object, true));
-		self::serve($element);
+		self::element('pre', print_r($object, true));
 	}
 }
 
