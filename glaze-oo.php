@@ -1,4 +1,9 @@
 <?php
+/*
+** Copyright 2014 Patrick Smith
+** http://www.burntcaramel.com/
+** Released under the MIT license: http://opensource.org/licenses/MIT
+*/
 
 namespace BurntCaramel
 {
