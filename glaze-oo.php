@@ -486,8 +486,8 @@ class GlazePreparedContent extends GlazePreparedItem
 			$i = 0;
 			foreach ($contentValueArray as $contentValueItem):
 				$i++;
-			
-				if (!empty($contentValueItem)):
+				
+				if (isset($contentValueItem) && ($contentValueItem !== false)): // Cannot use empty as it discard '0' dumbly.
 					GlazeServe::serve($contentValueItem, $contentType);
 		
 					if ($i < $count):
@@ -577,10 +577,10 @@ class GlazeServe
 	
 	static public function serve($preparedItem, $contentType = Glaze::TYPE_TEXT)
 	{
-		if (empty($preparedItem)):
+		if (!isset($preparedItem) || ($preparedItem === false)): // empty discards '0' too unfortunately.
 			return;
 		elseif ($preparedItem instanceof GlazePreparedItem):
-				$preparedItem->serve();
+			$preparedItem->serve();
 		elseif (is_string($preparedItem)):
 			echo Glaze::value($preparedItem, $contentType);
 		endif;
@@ -589,7 +589,7 @@ class GlazeServe
 	static public function element($tagNameOrElementOptions, $contentValue = null, $contentType = Glaze::TYPE_TEXT)
 	{
 		$element = GlazePrepare::element($tagNameOrElementOptions, $contentValue, $contentType);
-		self::serve($element);
+		$element->serve();
 	}
 	
 	static public function printR($object)
