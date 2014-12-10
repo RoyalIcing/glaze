@@ -77,6 +77,7 @@ $html = GlazePrepare::element('html');
 			$bookItemDiv->appendElement('h5.authorName', GlazePrepare::checkContent($info['authorName']));
 			// Will not display:
 			$bookItemDiv->appendElement('h5.authorName', GlazePrepare::checkContent($info['authorName_NOPE']));
+			
 			// Will display:
 			$bookItemDiv->appendElement('p.description', GlazePrepare::contentSeparatedBySoftLineBreaks( GlazePrepare::checkContent($info['itemDescription']) ));
 			// Will not display:

@@ -21,7 +21,7 @@ class Glaze
 	/**
 	*	Preserve the text for HTML output (escapes it)
 	*
-	*	@param string $string The string to be preserved
+	*	@param string $string The string to preserve
 	*	@return string The escaped string
 	*/
 	static public function text($string)
@@ -32,9 +32,15 @@ class Glaze
 		return htmlspecialchars($string, ENT_QUOTES, 'UTF-8');
 	}
 	
-	static public function URL($URL)
+	/**
+	*	Preserve the URL for HTML output (escapes it)
+	*
+	*	@param string $URLString The URL to preserve
+	*	@return string The escaped URL string
+	*/
+	static public function URL($URLString)
 	{
-		return self::text($URL);
+		return self::text($URLString);
 	}
 	
 	static protected function numericallyEncodeString($string)
@@ -52,11 +58,23 @@ class Glaze
 		return $stringDisplay;
 	}
 	
+	/**
+	*	Preserve the email address for semi-obsfucated HTML output
+	*
+	*	@param string $emailAddress The email address to preserve
+	*	@return string The semi-obsfucated and escaped email address
+	*/
 	static public function emailAddress($emailAddress)
 	{
 		return self::numericallyEncodeString($emailAddress);
 	}
-
+	
+	/**
+	*	Preserve the email address for semi-obsfucated HTML output and display it as a mailto: URL
+	*
+	*	@param string $emailAddress The email address to display
+	*	@return string The semi-obsfucated and escaped mailto: email address URL
+	*/
 	static public function emailAddressMailtoURL($emailAddress)
 	{
 		$emailAddressParts = explode('@', $emailAddress);
@@ -65,6 +83,12 @@ class Glaze
 		return self::numericallyEncodeString($emailAddressURL);
 	}
 	
+	/**
+	*	Use preferred types for certain attributes.
+	*
+	*	@param string $attributeName The name of the attribute
+	*	@return string The preferred type
+	*/
 	static public function defaultTypeForAttributeName($attributeName)
 	{
 		$attributeName = strtolower($attributeName);
@@ -78,6 +102,13 @@ class Glaze
 		return self::TYPE_TEXT;
 	}
 	
+	/**
+	*	Process the input value, the method depending on the optional `$valueType` argument (default ::TYPE_TEXT)
+	*
+	*	@param string $value The name of the attribute
+	*	@param string $valueType Optional type to process the value as
+	*	@return string The preserved value
+	*/
 	static public function value($value, $valueType = null)
 	{
 		if ($valueType === self::TYPE_PREGLAZED) {
@@ -104,6 +135,9 @@ class Glaze
 
 class GlazePreparedItem
 {
+	/**
+	*	Serve the prepared item's content, echoing it
+	*/
 	public function serve()
 	{
 		

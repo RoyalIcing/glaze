@@ -19,15 +19,15 @@ Just tell it what you want to display and let it worry about the HTML writing an
 Escaped elements in one line.
 
 ```php
-glazyElement('h1#siteTitle', 'Title');
-glazyElement('h2.tagline', 'The home of examples & more'); // No need to escape the &
-glazyElement('p.any.classes.you.need', 'Blah blah blah blah');
+GlazeServe::element('h1#siteTitle', 'Title');
+GlazeServe::element('h2.tagline', 'The home of examples & more'); // No need to escape the &
+GlazeServe::element('p.any.classes.you.need', 'Blah blah blah blah');
 ```
 
 Or use associated array version, to specify any attributes you like:
 
 ```php
-glazyElement(array(
+GlazeServe::element(array(
 	'tagName' => 'a',
 	'href' => 'http://www.infinitylist.com/',
 	'class' => 'externalLink'
@@ -37,7 +37,7 @@ glazyElement(array(
 Self closing elements are also handled.
 
 ```php
-glazyElement(array(
+GlazeServe::element(array(
 	'tagName' => 'meta',
 	'name' => 'description',
 	'content' => 'Site description as seen by search engines'
@@ -69,11 +69,11 @@ if (!empty($classNames)):
 endif;
 ```
 
-Or use the `glazyAttribute`/`glazyAttributeCheck` function, passing a string or array:
+Or use Glaze, passing a string or array:
 
 ```php
 // The -Check function makes sure that if `$classNames` is empty, then nothing will be displayed.
-glazyAttributeCheck('class', $classNames);
+GlazeServe::attributeChecking('class', $classNames);
 ```
 
 
@@ -102,35 +102,39 @@ $classNamesArray[] = !empty($info['published']) ? 'published' : 'upcoming';
 $classNamesArray[] = 'genre-' .$info['genreIdentifier']; // e.g. 'genre-thriller'
 
 // Begin the <div>
-$bookItemDiv = glazyBegin('div');
+$bookItemDiv = GlazePrepare::element('div');
 {
-	glazyAttribute('id', "bookItem-{$info['itemID']}");
+	$bookItemDiv->setAttribute('id', "bookItem-{$info['itemID']}");
 
 	// Lets you use an array of strings for class attributes.
-	glazyAttribute('class', $classNamesArray);
+	$bookItemDiv->setAttribute('class', $classNamesArray);
 
 	// Only display the attribute if variable reference $info['salesCount'] is present.
-	glazyAttributeCheck('data-sales-count', $info['salesCount']);
-	glazyAttributeCheck('data-sales-count', $info['salesCount_NOPE']);
+	$bookItemDiv->setAttributeChecking('data-sales-count', $info['salesCount']);
+	$bookItemDiv->setAttributeChecking('data-sales-count-nope', $info['salesCount_NOPE']);
 
 	// Only displays the attribute, with the value 'selected', if $info['selected'] is true.
-	glazyAttributeCheck('selected', $info['selected'], 'selected');
-	glazyAttributeCheck('selected-nope', $info['selected_NOPE'], 'selected');
+	$bookItemDiv->setAttributeChecking('selected', $info['selected'], 'selected');
+	$bookItemDiv->setAttributeChecking('selected-nope', $info['selected_NOPE'], 'selected');
 
-	glazyElement('h5.authorName', glazyCheckContent($info['authorName']));
-	glazyElement('p.description', glazyPrepareContentJoinedByLineBreaks(glazyCheckContent($info['itemDescription'])));
-	glazyElement('p.description', glazyPrepareContentJoinedByLineBreaks(glazyCheckContent($info['itemDescription_NOPE'])));
-
-	// Finish and close the </div>
+	// Will display:
+	$bookItemDiv->appendElement('h5.authorName', GlazePrepare::checkContent($info['authorName']));
+	// Will not display:
+	$bookItemDiv->appendElement('h5.authorName', GlazePrepare::checkContent($info['authorName_NOPE']));
+	
+	// Will display:
+	$bookItemDiv->appendElement('p.description', GlazePrepare::contentSeparatedBySoftLineBreaks( GlazePrepare::checkContent($info['itemDescription']) ));
+	// Will not display:
+	$bookItemDiv->appendElement('p.description', GlazePrepare::contentSeparatedBySoftLineBreaks( GlazePrepare::checkContent($info['itemDescription_NOPE']) ));
 }
-glazyFinish($bookItemDiv);
+$bookItemDiv->serve();
 ```
 
 ### Using already escaped information
 
 ```php
 $escapedText = 'Bangers &amp; Mash';
-glazyAttribute('alt', $escapedText, GLAZE_TYPE_PREGLAZED);
+GlazeServe::attribute('alt', $escapedText, GLAZE_TYPE_PREGLAZED);
 ```
 
 
@@ -161,7 +165,7 @@ Display HTML elements and attributes using nested function calls:
 resource glazyBegin( string/array $tagNameOrElementOptions [, string $valueType = GLAZE_TYPE_PREGLAZED ] )
 
 // Displays an HTML element's attribute: | name="value"|
-void glazyAttribute( string $attributeName, string $attributeValue [, string $valueType = null (automatic detection) ] )
+void glazyAttribute( string $attributeName, string $attributeValue [, string $valueType = null (null means automatic detection) ] )
 
 // This works the same as the above function, but checks a variable reference you pass first.
 // If $attributeValueToUse isn't passed then $attributeValueToCheck is also the value that is displayed.
