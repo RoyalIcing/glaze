@@ -8,9 +8,25 @@ This content is released under the MIT License: http://opensource.org/licenses/M
 define('BASE_PATH', dirname(__FILE__));
 require_once(BASE_PATH. '/../glaze.php');
 
+if ( !function_exists( 'microtime_float' )):
+function microtime_float()
+{
+	list($usec, $sec) = explode(' ', microtime());
+	return ((float)$usec + (float)$sec);
+}
+endif;
+
+$startTime = microtime_float();
+
 ob_start();
 require(BASE_PATH. '/example.php');
 $generatedHTML = ob_get_clean();
+
+$endTime = microtime_float();
+$duration = $endTime - $startTime;
+
+echo "Took {$duration}ms to display\n";
+
 
 $referenceHTML = file_get_contents(BASE_PATH. '/example.html');
 
@@ -19,3 +35,4 @@ if ($generatedHTML === $referenceHTML):
 else:
 	echo 'Oops! Generated HTML does not match reference file!';
 endif;
+echo "\n";
