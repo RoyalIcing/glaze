@@ -138,7 +138,7 @@ class GlazePreparedItem
 	/**
 	*	Serve the prepared item's content, echoing it
 	*/
-	public function serve()
+	public function serve($options = null)
 	{
 		
 	}
@@ -456,8 +456,10 @@ class GlazePreparedElement extends GlazePreparedItem
 		$this->append($preparedContent);
 	}
 
-	public function serve()
+	public function serve($options = null)
 	{
+		$serveResult = array();
+		
 		$tagName = $this->tagName;
 		$attributes = $this->attributes;
 	
@@ -469,13 +471,19 @@ class GlazePreparedElement extends GlazePreparedItem
 	
 		echo '>';
 	
-		if (self::tagShouldAddNewLineAfterOpening($tagName)):
+		$newLineAfterOpening = self::tagShouldAddNewLineAfterOpening($tagName);
+		if ($newLineAfterOpening):
 			echo "\n";
 		endif;
 	
 		$innerPreparedItem = $this->innerPreparedItem;
+		$innerServeResult = null;
 		if (isset($innerPreparedItem)):
-			GlazeServe::serve($innerPreparedItem);
+			$innerServeResult = GlazeServe::serve($innerPreparedItem);
+		endif;
+		
+		if ($newLineAfterOpening && empty($innerServeResult['endedWithNewLine'])):
+			echo "\n";
 		endif;
 	
 		if (!self::tagIsSelfClosing($tagName)):
@@ -484,7 +492,10 @@ class GlazePreparedElement extends GlazePreparedItem
 	
 		if (self::tagShouldAddNewLineAfterClosing($tagName)):
 			echo "\n";
+			$serveResult['endedWithNewLine'] = true;
 		endif;
+		
+		return $serveResult;
 	}
 }
 
@@ -507,11 +518,17 @@ class GlazePreparedContent extends GlazePreparedItem
 		$this->contentValue = $contentValue;
 	}
 	
-	public function serve()
+	public function serve($options = null)
 	{
 		$contentValue = $this->contentValue;
 		$contentType = $this->contentType;
 		$spacingHTML = $this->spacingHTML;
+		
+		$internalOptions = array(
+			'type' => $contentType
+		);
+		
+		$lastServeReturnValue = null;
 	
 		// If is ordered-array:
 		if (is_array($contentValue)):
@@ -522,7 +539,7 @@ class GlazePreparedContent extends GlazePreparedItem
 				$i++;
 				
 				if (isset($contentValueItem) && ($contentValueItem !== false)): // Cannot use empty as it discard '0' dumbly.
-					GlazeServe::serve($contentValueItem, $contentType);
+					$lastServeReturnValue = GlazeServe::serve($contentValueItem, $internalOptions);
 		
 					if ($i < $count):
 						echo $spacingHTML;
@@ -531,8 +548,10 @@ class GlazePreparedContent extends GlazePreparedItem
 			endforeach;
 		// If is string:
 		elseif (is_string($contentValue)):
-			GlazeServe::serve($contentValue, $contentType);
+			$lastServeReturnValue = GlazeServe::serve($contentValue, $internalOptions);
 		endif;
+		
+		return $lastServeReturnValue;
 	}
 }
 
@@ -609,14 +628,16 @@ class GlazeServe
 		GlazePreparedElement::serveAttribute($attributeName, isset($attributeValueToUse) ? $attributeValueToUse : $attributeValueToCheck, $valueType);
 	}
 	
-	static public function serve($preparedItem, $contentType = Glaze::TYPE_TEXT)
+	static public function serve($preparedItem, $options = null)
 	{
 		if (!isset($preparedItem) || ($preparedItem === false)): // empty discards '0' too unfortunately.
-			return;
+			return null;
 		elseif ($preparedItem instanceof GlazePreparedItem):
-			$preparedItem->serve();
+			return $preparedItem->serve($options);
 		elseif (is_string($preparedItem)):
+			$contentType = !empty($options['type']) ? $options['type'] : null;
 			echo Glaze::value($preparedItem, $contentType);
+			return null;
 		endif;
 	}
 	

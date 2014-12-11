@@ -1,120 +1,75 @@
-Glaze
-=====
+<?php
+/*
+Copyright 2013, 2014: Patrick Smith
 
-### *[French and Viennese pastry chefs originally invented the idea of glazing cakes as a way of preserving them—the glaze sealed off the cakes from the air and prevented them from growing stale.](http://www.epicurious.com/articlesguides/howtocook/primers/cakesfrostings)*
+This content is released under the MIT License: http://opensource.org/licenses/MIT
+*/
 
-**When displaying anything on the web it must be properly prepared for HTML.** Any text, any URL, and any HTML element’s attributes and contents must be *escaped* before they are displayed.
-
-Normally people use functions like `htmlspecialchars()`, or they even madly paste text into their source code and manually change characters like `&` into `&amp;` and `>` into `&gt;`.
-
-Well there’s these things called computers and you can avoid all that manual work and use much more powerful functions with baking-inspired names.
-
-## Glaze preserves the content you want to display.
-
-Just tell it what you want to display and let it worry about the HTML writing and escaping part. It works with nested HTML elements, attributes, text, URLs, and email addresses. My aim is to make it easier to read and write than the usual PHP ways, whilst also taking care of escaping everything by default.
+// php -f README-examples.php
 
 
-## Whole elements
+require_once(dirname(__FILE__). '/../glaze-oo.php');
 
-Escaped elements in one line.
+use BurntCaramel\Glaze;
+use BurntCaramel\GlazePrepare;
+use BurntCaramel\GlazeServe;
 
-```php
+
+echo "\n";
+
 GlazeServe::element('h1#siteTitle', 'Title');
 // No need to escape the &
 GlazeServe::element('h2.tagline', 'The home of examples & more');
 GlazeServe::element('p.any.classes.you.need', 'Blah blah blah blah');
 
-/*
-<h1 id="siteTitle">
-Title
-</h1>
-<h2 class="tagline">
-The home of examples &amp; more
-</h2>
-<p class="any classes you need">
-Blah blah blah blah
-</p>
-*/
-```
+echo "\n\n\n";
 
-Or use associated array version, to specify any attributes you like:
 
-```php
 GlazeServe::element(array(
 	'tagName' => 'a',
 	'href' => 'http://www.infinitylist.com/',
 	'class' => 'externalLink'
-), 'Adventure & creative videos.');
+), 'Adventure & creative videos daily.');
 
-/*
-<a href="http://www.infinitylist.com/" class="externalLink">Adventure &amp; creative videos.</a>
-*/
-```
+echo "\n\n\n";
 
-Self closing elements are also handled.
-
-```php
 GlazeServe::element(array(
 	'tagName' => 'meta',
 	'name' => 'description',
 	'content' => 'Site description as seen by search engines'
 ));
 
-/*
-<meta name="description" content="Site description as seen by search engines">
-*/
-```
+echo "\n\n\n";
 
 
-## Class attributes
-
-Say you want to display an HTML element’s class names where some are optional.
-
-```php
 $classNames = array('post');
 
-if (isArticle()):
+if (true):
 	$classNames[] = 'article';
 	
-	if (isFeatureArticle()):
+	if (true):
 		$classNames[] = 'feature';
 	endif;
 endif;
-```
 
-You could juggle `if` statements and PHP open/close tags:
-
-```php
 ?>
 <div<?php
 if (!empty($classNames)):
 ?> class="<?= implode(' ', $classNames); ?>"<?php
 endif;
 ?>>
+<?php
 
-/*
-<div class="post article feature">
-*/
-```
+echo "\n\n";
 
-Or use Glaze, passing a string or array:
-
-```php
 // The -Checking method makes sure that if `$classNames` is empty, then nothing will be displayed.
 ?>
 <div<?php GlazeServe::attributeChecking('class', $classNames); ?>>
+<?php
 
-/*
-<div class="post article feature">
-*/
-```
+echo "\n\n\n";
 
 
-## Check values for attributes before displaying
-
-Using JSON from a web API, for example.
-
-```php
 $info = array(
 	'itemID' => 'fddf3tq3tt3t3',
 	'published' => false,
@@ -134,6 +89,7 @@ $classNamesArray = array('item', 'book');
 $classNamesArray[] = !empty($info['published']) ? 'published' : 'upcoming';
 $classNamesArray[] = 'genre-' .$info['genreIdentifier']; // e.g. 'genre-thriller'
 
+// Begin the <div>
 $bookItemDiv = GlazePrepare::element('div');
 {
 	$bookItemDiv->setAttribute('id', "bookItem-{$info['itemID']}");
@@ -172,29 +128,11 @@ $bookItemDiv = GlazePrepare::element('div');
 	);
 }
 $bookItemDiv->serve();
-```
 
-Outputs:
-```html
-<div id="bookItem-fddf3tq3tt3t3" class="item book upcoming genre-thriller" data-sales-count="56" selected="selected">
-<h5 class="authorName">
-John Smith
-</h5>
-<p class="description">
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.<br>
-Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.<br>
-Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
-</p>
-</div>
-```
 
-### Using already escaped information
+echo "\n\n\n";
 
-```php
 $escapedText = 'Bangers &amp; Mash';
 GlazeServe::attribute('alt', $escapedText, Glaze::TYPE_PREGLAZED);
 
-/*
- alt="Bangers &amp; Mash"
-*/
-```
+echo "\n\n";
