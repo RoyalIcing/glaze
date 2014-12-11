@@ -24,7 +24,7 @@ GlazeServe::element('h1#siteTitle', 'Title');
 GlazeServe::element('h2.tagline', 'The home of examples & more');
 GlazeServe::element('p.any.classes.you.need', 'Blah blah blah blah');
 
-/*
+/* Displays: */?>
 <h1 id="siteTitle">
 Title
 </h1>
@@ -34,7 +34,6 @@ The home of examples &amp; more
 <p class="any classes you need">
 Blah blah blah blah
 </p>
-*/
 ```
 
 Or use associated array version, to specify any attributes you like:
@@ -46,9 +45,8 @@ GlazeServe::element(array(
 	'class' => 'externalLink'
 ), 'Adventure & creative videos.');
 
-/*
+/* Displays: */?>
 <a href="http://www.infinitylist.com/" class="externalLink">Adventure &amp; creative videos.</a>
-*/
 ```
 
 Self closing elements are also handled.
@@ -60,9 +58,8 @@ GlazeServe::element(array(
 	'content' => 'Site description as seen by search engines'
 ));
 
-/*
+/* Displays: */?>
 <meta name="description" content="Site description as seen by search engines">
-*/
 ```
 
 
@@ -92,9 +89,8 @@ if (!empty($classNames)):
 endif;
 ?>>
 
-/*
+<?php/* Displays: */?>
 <div class="post article feature">
-*/
 ```
 
 Or use Glaze, passing a string or array:
@@ -104,9 +100,8 @@ Or use Glaze, passing a string or array:
 ?>
 <div<?php GlazeServe::attributeChecking('class', $classNames); ?>>
 
-/*
+<?php/* Displays: */?>
 <div class="post article feature">
-*/
 ```
 
 
@@ -174,7 +169,7 @@ $bookItemDiv = GlazePrepare::element('div');
 $bookItemDiv->serve();
 ```
 
-Outputs:
+Displays:
 ```html
 <div id="bookItem-fddf3tq3tt3t3" class="item book upcoming genre-thriller" data-sales-count="56" selected="selected">
 <h5 class="authorName">
@@ -194,7 +189,6 @@ Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu 
 $escapedText = 'Bangers &amp; Mash';
 GlazeServe::attribute('alt', $escapedText, Glaze::TYPE_PREGLAZED);
 
-/*
+/* Displays: */?>
  alt="Bangers &amp; Mash"
-*/
 ```
