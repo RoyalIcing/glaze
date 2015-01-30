@@ -133,7 +133,12 @@ class Glaze
 	
 	static public function check(&$potentialContent)
 	{
-		return !empty($potentialContent) ? $potentialContent : false;
+		if (isset($potentialContent) && ($potentialContent !== false)) {
+			return $potentialContent;
+		}
+		else {
+			return false;
+		}
 	}
 }
 
@@ -243,7 +248,7 @@ class GlazePreparedElement extends GlazePreparedItem
 			$valueType = $attributeOptions['valueType'];
 		}
 	
-		if (empty($valueType)) {
+		if (!isset($valueType)) {
 			$valueType = Glaze::defaultTypeForAttributeName($attributeName);
 		}
 	
@@ -388,7 +393,7 @@ class GlazePreparedElement extends GlazePreparedItem
 	
 	public function setAttributeChecking($attributeName, &$attributeValueToCheck, $attributeValueToUse = null, $valueType = null)
 	{
-		if (empty($attributeValueToCheck)) {
+		if (!isset($attributeValueToCheck) || ($attributeValueToCheck === false)) {
 			return;
 		}
 		
@@ -397,7 +402,7 @@ class GlazePreparedElement extends GlazePreparedItem
 	
 	protected function getStoredClassNames()
 	{
-		if (empty($this->attributes['class'])):
+		if (!isset($this->attributes['class'])):
 			return array();
 		endif;
 		
@@ -440,7 +445,7 @@ class GlazePreparedElement extends GlazePreparedItem
 	public function appendNewElement($tagNameOrElementOptions, $contentValue = null, $contentType = Glaze::TYPE_TEXT)
 	{
 		$element = GlazePrepare::element($tagNameOrElementOptions, $contentValue, $contentType);
-		if (empty($element)):
+		if (!isset($element)):
 			return;
 		endif;
 		
@@ -621,7 +626,7 @@ class GlazeServe
 	static public function attributeChecking($attributeName, &$attributeValueToCheck, $attributeValueToUse = null, $valueType = null)
 	{
 		// This is the check, if the value doesn't exist then return.
-		if (empty($attributeValueToCheck)) {
+		if (!isset($attributeValueToCheck) || ($attributeValueToCheck === false)) {
 			return;
 		}
 	
