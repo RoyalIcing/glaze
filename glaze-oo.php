@@ -130,6 +130,11 @@ class Glaze
 	
 		return self::text($value);
 	}
+	
+	static public function check(&$potentialContent)
+	{
+		return !empty($potentialContent) ? $potentialContent : false;
+	}
 }
 
 
@@ -398,16 +403,16 @@ class GlazePreparedElement extends GlazePreparedItem
 		
 		$preparedAttribute = $this->attributes['class'];
 		if (!empty($preparedAttribute['valueType'])):
-			return $preparedAttribute['value'];
+			return (array)($preparedAttribute['value']);
 		else:
-			return $preparedAttribute;
+			return (array)($preparedAttribute);
 		endif;
 	}
 	
 	public function addClassNames($classNames)
 	{
 		$currentClassNames = $this->getStoredClassNames();
-		$combinedClassNames = array_merge(array($currentClassNames), (array)($className));
+		$combinedClassNames = array_merge($currentClassNames, (array)($classNames));
 		
 		$this->attributes['class'] = $combinedClassNames;
 	}
@@ -432,7 +437,7 @@ class GlazePreparedElement extends GlazePreparedItem
 		return $preparedItemToAppend;
 	}
 	
-	public function appendElement($tagNameOrElementOptions, $contentValue = null, $contentType = Glaze::TYPE_TEXT)
+	public function appendNewElement($tagNameOrElementOptions, $contentValue = null, $contentType = Glaze::TYPE_TEXT)
 	{
 		$element = GlazePrepare::element($tagNameOrElementOptions, $contentValue, $contentType);
 		if (empty($element)):
@@ -557,11 +562,6 @@ class GlazePreparedContent extends GlazePreparedItem
 
 class GlazePrepare
 {
-	static public function checkContent(&$potentialContent)
-	{
-		return !empty($potentialContent) ? $potentialContent : false;
-	}
-	
 	static public function contentSeparatedBy($contentValue, $contentType = Glaze::TYPE_TEXT, $spacingHTML = '')
 	{
 		if ($contentValue === false):

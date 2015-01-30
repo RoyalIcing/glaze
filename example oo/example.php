@@ -12,20 +12,20 @@ use BurntCaramel\GlazePrepare;
 
 $html = GlazePrepare::element('html');
 {
-	$html->appendElement('head', array(
+	$html->appendNewElement('head', array(
 		GlazePrepare::element('title', 'An example of using glaze.php'),
 		GlazePrepare::element(array('tagName' => 'meta', 'charset' => 'utf-8'))
 	));
 	
-	$body = $html->appendElement('body');
+	$body = $html->appendNewElement('body');
 	{
-		$body->appendElement('header', array(
+		$body->appendNewElement('header', array(
 			GlazePrepare::element('h1', 'Glaze preserves your content by escaping any <html> characters.')
 		));
 		
-		$body->appendElement('p', 'Your content should be stored as it was written. Escaping first makes it difficult when content is used outside of the web, such as in an app.');
+		$body->appendNewElement('p', 'Your content should be stored as it was written. Escaping first makes it difficult when content is used outside of the web, such as in an app.');
 		
-		$body->appendElement('p', array(
+		$body->appendNewElement('p', array(
 			'You can easily format what you write, adding ',
 			GlazePrepare::element('strong', '<strong>'),
 			' or ',
@@ -35,7 +35,7 @@ $html = GlazePrepare::element('html');
 		
 		
 		
-		$body->appendElement('h2', 'Check values before displaying.');
+		$body->appendNewElement('h2', 'Check values before displaying.');
 		
 		//$info = json_decode($jsonString, true); // true: decodes as an array
 		$info = array(
@@ -58,12 +58,13 @@ $html = GlazePrepare::element('html');
 		$classNamesArray[] = 'genre-' .$info['genreIdentifier']; // e.g. 'genre-thriller'
 
 		// Begin the <div>
-		$bookItemDiv = $body->appendElement('div');
+		$bookItemDiv = $body->appendNewElement('div');
 		{
 			$bookItemDiv->setAttribute('id', "bookItem-{$info['itemID']}");
 	
 			// Lets you use an array of strings for class attributes.
-			$bookItemDiv->setAttribute('class', $classNamesArray);
+			//$bookItemDiv->setAttribute('class', $classNamesArray);
+			$bookItemDiv->addClassNames($classNamesArray);
 
 			// Only display the attribute if variable reference $info['salesCount'] is present.
 			$bookItemDiv->setAttributeChecking('data-sales-count', $info['salesCount']);
@@ -74,22 +75,22 @@ $html = GlazePrepare::element('html');
 			$bookItemDiv->setAttributeChecking('selected-nope', $info['selected_NOPE'], 'selected');
 	
 			// Will display:
-			$bookItemDiv->appendElement('h5.authorName', GlazePrepare::checkContent($info['authorName']));
+			$bookItemDiv->appendNewElement('h5.authorName', Glaze::check($info['authorName']));
 			// Will not display:
-			$bookItemDiv->appendElement('h5.authorName', GlazePrepare::checkContent($info['authorName_NOPE']));
+			$bookItemDiv->appendNewElement('h5.authorName', Glaze::check($info['authorName_NOPE']));
 			
 			// Will display:
-			$bookItemDiv->appendElement('p.description', GlazePrepare::contentSeparatedBySoftLineBreaks( GlazePrepare::checkContent($info['itemDescription']) ));
+			$bookItemDiv->appendNewElement('p.description', GlazePrepare::contentSeparatedBySoftLineBreaks( Glaze::check($info['itemDescription']) ));
 			// Will not display:
-			$bookItemDiv->appendElement('p.description', GlazePrepare::contentSeparatedBySoftLineBreaks( GlazePrepare::checkContent($info['itemDescription_NOPE']) ));
+			$bookItemDiv->appendNewElement('p.description', GlazePrepare::contentSeparatedBySoftLineBreaks( Glaze::check($info['itemDescription_NOPE']) ));
 		}
 		
 		
 		
-		$body->appendElement('h2', 'These are already escaped &amp; &lt; &gt;', Glaze::TYPE_PREGLAZED);
+		$body->appendNewElement('h2', 'These are already escaped &amp; &lt; &gt;', Glaze::TYPE_PREGLAZED);
 		
 		
-		$img = $body->appendElement('img');
+		$img = $body->appendNewElement('img');
 		{
 			$img->setAttribute('src', 'http://placehold.it/150x50');
 			
@@ -102,19 +103,19 @@ $html = GlazePrepare::element('html');
 		
 		
 		
-		$body->appendElement('hr');
-		$body->appendElement('p', array(
+		$body->appendNewElement('hr');
+		$body->appendNewElement('p', array(
 			'Updating this file by using: ',
 			GlazePrepare::element('br'),
 			GlazePrepare::element('code', 'php -f example-update.php')
 		));
-		$body->appendElement('p', array(
+		$body->appendNewElement('p', array(
 			'Check this file with the last version by using: ',
 			GlazePrepare::element('br'),
 			GlazePrepare::element('code', 'php -f example-check.php')
 		));
 		
-		$body->appendElement('p', array(
+		$body->appendNewElement('p', array(
 			'You can download glaze.php from here: ',
 			GlazePrepare::element(array(
 				'tagName' => 'a',
