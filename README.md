@@ -134,7 +134,7 @@ $bookItemDiv = GlazePrepare::element('div');
 	$bookItemDiv->setAttribute('id', "bookItem-{$info['itemID']}");
 	
 	// Lets you use an array of strings for class attributes.
-	$bookItemDiv->setAttribute('class', $classNamesArray);
+	$bookItemDiv->addClassNames($classNamesArray);
 	
 	// Only display the attribute if variable reference $info['salesCount'] is present.
 	$bookItemDiv->setAttributeChecking('data-sales-count', $info['salesCount']);
@@ -145,24 +145,24 @@ $bookItemDiv = GlazePrepare::element('div');
 	$bookItemDiv->setAttributeChecking('selected-nope', $info['selected_NOPE'], 'selected');
 	
 	// Will display:
-	$bookItemDiv->appendElement('h5.authorName',
-		GlazePrepare::checkContent($info['authorName'])
+	$bookItemDiv->appendNewElement('h5.authorName',
+		Glaze::check($info['authorName'])
 	);
 	// Will not display, as key 'authorName_NOPE' does not exist.
-	$bookItemDiv->appendElement('h5.authorName',
-		GlazePrepare::checkContent($info['authorName_NOPE'])
+	$bookItemDiv->appendNewElement('h5.authorName',
+		Glaze::check($info['authorName_NOPE'])
 	);
 	
 	// Will display:
-	$bookItemDiv->appendElement('p.description',
+	$bookItemDiv->appendNewElement('p.description',
 		GlazePrepare::contentSeparatedBySoftLineBreaks(
-			GlazePrepare::checkContent($info['itemDescription'])
+			Glaze::check($info['itemDescription'])
 		)
 	);
 	// Will not display, as key 'itemDescription_NOPE' does not exist.
-	$bookItemDiv->appendElement('p.description',
+	$bookItemDiv->appendNewElement('p.description',
 		GlazePrepare::contentSeparatedBySoftLineBreaks(
-			GlazePrepare::checkContent($info['itemDescription_NOPE'])
+			Glaze::check($info['itemDescription_NOPE'])
 		)
 	);
 }
