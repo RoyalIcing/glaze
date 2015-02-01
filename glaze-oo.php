@@ -146,7 +146,30 @@ class Glaze
 class GlazePreparedItem
 {
 	/**
-	*	Serve the prepared item's content, echoing it
+	*	Appends an instance of GlazePreparedItem, usually GlazePreparedElement or GlazePreparedContent
+	*/
+	public function appendPreparedItem($preparedItemToAppend)
+	{
+		
+	}
+	
+	/**
+	*	Appends an instance of GlazePreparedElement made with the passed arguments.
+	*/
+	public function appendNewElement($tagNameOrElementOptions, $contentValue = null, $contentType = Glaze::TYPE_TEXT)
+	{
+		$element = GlazePrepare::element($tagNameOrElementOptions, $contentValue, $contentType);
+		if (!isset($element) || $element === false):
+			return;
+		endif;
+		
+		$this->appendPreparedItem($element);
+		
+		return $element;
+	}
+	
+	/**
+	*	Displays the prepared item's content.
 	*/
 	public function serve($options = null)
 	{
@@ -207,7 +230,7 @@ class GlazePreparedElement extends GlazePreparedItem
 		);
 	}
 	
-	static public function preparedItemForInput($contentValue = null, $contentType = Glaze::TYPE_TEXT)
+	static protected function preparedItemForInput($contentValue = null, $contentType = Glaze::TYPE_TEXT)
 	{
 		if (!isset($contentValue)):
 			// For self closing elements.
@@ -422,10 +445,8 @@ class GlazePreparedElement extends GlazePreparedItem
 		$this->attributes['class'] = $combinedClassNames;
 	}
 	
-	public function append($itemInput)
+	public function appendPreparedItem($preparedItemToAppend)
 	{
-		$preparedItemToAppend = self::preparedItemForInput($itemInput);
-		
 		if (!isset($this->innerPreparedItem)):
 			$this->innerPreparedItem = $preparedItemToAppend;
 		else:
@@ -442,16 +463,13 @@ class GlazePreparedElement extends GlazePreparedItem
 		return $preparedItemToAppend;
 	}
 	
-	public function appendNewElement($tagNameOrElementOptions, $contentValue = null, $contentType = Glaze::TYPE_TEXT)
+	public function append($itemInput)
 	{
-		$element = GlazePrepare::element($tagNameOrElementOptions, $contentValue, $contentType);
-		if (!isset($element)):
-			return;
-		endif;
+		$preparedItemToAppend = self::preparedItemForInput($itemInput);
 		
-		$this->append($element);
+		$this->appendPreparedItem($preparedItemToAppend);
 		
-		return $element;
+		return $preparedItemToAppend;
 	}
 	
 	public function beginCapturingContent()
@@ -521,7 +539,7 @@ class GlazePreparedContent extends GlazePreparedItem
 	
 	public function appendPreparedItem($item)
 	{
-		$contentValue = (array)$this->contentValue;
+		$contentValue = (array)($this->contentValue);
 		
 		$contentValue[] = $item;
 		
