@@ -150,7 +150,7 @@ class GlazePreparedItem
 	*/
 	public function appendPreparedItem($preparedItemToAppend)
 	{
-		
+		// For subclasses.
 	}
 	
 	/**
@@ -169,11 +169,39 @@ class GlazePreparedItem
 	}
 	
 	/**
+	*	Use to make sure you have an element, wrapping with $tagNameToAdd if one from $arrayOfTagNames is not present.
+	*/
+	public function ensureElementWithTagNames($arrayOfTagNames, $tagNameToAdd)
+	{
+		// Wrap the receiver in a new element with the specified tag name.
+		return new GlazePreparedElement(
+			$tagNameToAdd,
+			$this
+		);
+	}
+	
+	/**
+	*	Make sure you have a <div> element, wrapping if one is not present.
+	*/
+	public function ensureDivElement()
+	{
+		return $this->ensureElementWithTagNames(array('div'), 'div');
+	}
+	
+	/**
+	*	Make sure you have a <span> element, wrapping if one is not present.
+	*/
+	public function ensureSpanElement()
+	{
+		return $this->ensureElementWithTagNames(array('span'), 'span');
+	}
+	
+	/**
 	*	Displays the prepared item's content.
 	*/
 	public function serve($options = null)
 	{
-		
+		// For subclasses.
 	}
 }
 
@@ -472,6 +500,26 @@ class GlazePreparedElement extends GlazePreparedItem
 		return $preparedItemToAppend;
 	}
 	
+	/**
+	*	Use to make sure you have an element, wrapping with $tagNameToAdd if one from $arrayOfTagNames is not present.
+	*/
+	public function ensureElementWithTagNames($arrayOfTagNames, $tagNameToAdd)
+	{
+		$indexOfCurrentTag = array_search($this->tagName, $arrayOfTagNames);
+		if ($indexOfCurrentTag !== false):
+			return $this;
+		endif;
+		
+		// Wrap the receiver in a new element with the specified tag name.
+		return new GlazePreparedElement(
+			$tagNameToAdd,
+			$this
+		);
+	}
+	
+	/**
+	*	Captures the displayed output (from the output buffer) until finishCapturingContent() is called.
+	*/
 	public function beginCapturingContent()
 	{
 		ob_start();
@@ -483,7 +531,10 @@ class GlazePreparedElement extends GlazePreparedItem
 		$preparedContent = GlazePrepare::contentWithUnsafeHTML($capturedHTMLContent);
 		$this->append($preparedContent);
 	}
-
+	
+	/**
+	*	Displays the element with its attributes and content.
+	*/
 	public function serve($options = null)
 	{
 		$serveResult = array();
@@ -530,13 +581,16 @@ class GlazePreparedElement extends GlazePreparedItem
 
 class GlazePreparedContent extends GlazePreparedItem
 {
-	public function __construct($contentValue, $contentType, $spacingHTML)
+	public function __construct($contentValue, $contentType, $spacingContent = null)
 	{
 		$this->contentValue = $contentValue;
 		$this->contentType = $contentType;
-		$this->spacingHTML = $spacingHTML;
+		$this->spacingContent = $spacingContent;
 	}
 	
+	/**
+	*	Appends the item (element or content) to the receiver.
+	*/
 	public function appendPreparedItem($item)
 	{
 		$contentValue = (array)($this->contentValue);
@@ -546,11 +600,14 @@ class GlazePreparedContent extends GlazePreparedItem
 		$this->contentValue = $contentValue;
 	}
 	
+	/**
+	*	Displays the content.
+	*/
 	public function serve($options = null)
 	{
 		$contentValue = $this->contentValue;
 		$contentType = $this->contentType;
-		$spacingHTML = $this->spacingHTML;
+		$spacingContent = $this->spacingContent;
 		
 		$internalOptions = array(
 			'type' => $contentType
@@ -569,8 +626,8 @@ class GlazePreparedContent extends GlazePreparedItem
 				if (isset($contentValueItem) && ($contentValueItem !== false)): // Cannot use empty as it discard '0' dumbly.
 					$lastServeReturnValue = GlazeServe::serve($contentValueItem, $internalOptions);
 		
-					if ($i < $count):
-						echo $spacingHTML;
+					if ($i < $count && isset($spacingContent)):
+						GlazeServe::serve($spacingContent, $internalOptions);
 					endif;
 				endif;
 			endforeach;
@@ -585,7 +642,10 @@ class GlazePreparedContent extends GlazePreparedItem
 
 class GlazePrepare
 {
-	static public function contentSeparatedBy($contentValue, $contentType = Glaze::TYPE_TEXT, $spacingHTML = '')
+	/**
+	*	Returns prepared content separated by other content.
+	*/
+	static public function contentSeparatedBy($contentValue, $contentType = Glaze::TYPE_TEXT, $spacingContent = null)
 	{
 		if ($contentValue === false):
 			return false;
@@ -594,31 +654,67 @@ class GlazePrepare
 		return new GlazePreparedContent(
 			$contentValue,
 			$contentType,
-			$spacingHTML
+			$spacingContent
 		);
 	}
 	
+	/**
+	*	Returns prepared content with the specified content type.
+	*/
 	static public function content($contentValue, $contentType = Glaze::TYPE_TEXT)
 	{
 		return self::contentSeparatedBy($contentValue, $contentType, '');
 	}
 	
+	/**
+	*	Returns prepared content separated by a single space.
+	*/
 	static public function contentSeparatedBySpaces($contentValue, $contentType = Glaze::TYPE_TEXT)
 	{
 		return self::contentSeparatedBy($contentValue, $contentType, ' ');
 	}
 	
+	/**
+	*	Returns prepared content separated by an HTML string.
+	*/
+	static public function contentSeparatedByHTML($contentValue, $contentType = Glaze::TYPE_TEXT, $spacingHTML = '')
+	{
+		if ($contentValue === false):
+			return false;
+		endif;
+		
+		$spacingContent = new GlazePreparedContent(
+			$spacingHTML,
+			Glaze::TYPE_PREGLAZED
+		);
+	
+		return new GlazePreparedContent(
+			$contentValue,
+			$contentType,
+			$spacingContent
+		);
+	}
+	
+	/**
+	*	Returns prepared content separated by the <br> line break HTML element
+	*/
 	static public function contentSeparatedBySoftLineBreaks($contentValue, $contentType = Glaze::TYPE_TEXT)
 	{
-		return self::contentSeparatedBy($contentValue, $contentType, "<br>\n");
+		return self::contentSeparatedByHTML($contentValue, $contentType, "<br>\n");
 	}
 
+	/**
+	*	Returns prepared content with whatever HTML you need.
+	*/
 	static public function contentWithUnsafeHTML($contentValue)
 	{
 		return self::contentSeparatedBy($contentValue, Glaze::TYPE_PREGLAZED, '');
 	}
 	
-	
+	/**
+	*	Returns prepared element with the same arguments that GlazePreparedElement's constructor takes.
+	*	Checks if $contentValue is false, if it is then returns false.
+	*/
 	static public function element($tagNameOrElementOptions, $contentValue = null, $contentType = Glaze::TYPE_TEXT)
 	{
 		if ($contentValue === false):
@@ -630,6 +726,14 @@ class GlazePrepare
 			$contentValue,
 			$contentType
 		);
+	}
+	
+	/**
+	*	Returns prepared attribute value with a particular type.
+	*/
+	static public function attributeValue($attributeValue, $valueType = null)
+	{
+		return GlazePreparedElement::prepareAttributeValue($attributeValue, $valueType);
 	}
 }
 
