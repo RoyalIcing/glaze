@@ -1,15 +1,6 @@
 Glaze TODO
 =====
 
-## Decide on glazy vs glaze
-
-## Check content whether it should display
-```php
-	// glazyCheck() returns false if the argument is empty.
-	// glazyElement() does not display if content is false.
-	glazyElement('p', glazyCheck($info['name']));
-```
-
 ## Multiple elements for multiple array items
 ```php
 	glazyMultipleElements('p', array(

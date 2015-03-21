@@ -7,12 +7,11 @@ This content is released under the MIT License: http://opensource.org/licenses/M
 
 // php -f README-examples.php
 
-
-require_once(dirname(__FILE__). '/../glaze-oo.php');
+require_once(dirname(__FILE__). '/../all.php');
 
 use BurntCaramel\Glaze;
-use BurntCaramel\GlazePrepare;
-use BurntCaramel\GlazeServe;
+use BurntCaramel\Glaze\Prepare as GlazePrepare;
+use BurntCaramel\Glaze\Serve as GlazeServe;
 
 
 echo "\n";
@@ -107,23 +106,23 @@ $bookItemDiv = GlazePrepare::element('div');
 	
 	// Will display:
 	$bookItemDiv->appendNewElement('h5.authorName',
-		Glaze::check($info['authorName'])
+		Glaze\check($info['authorName'])
 	);
 	// Will not display, as key 'authorName_NOPE' does not exist.
 	$bookItemDiv->appendNewElement('h5.authorName',
-		Glaze::check($info['authorName_NOPE'])
+		Glaze\check($info['authorName_NOPE'])
 	);
 	
 	// Will display:
 	$bookItemDiv->appendNewElement('p.description',
 		GlazePrepare::contentSeparatedBySoftLineBreaks(
-			Glaze::check($info['itemDescription'])
+			Glaze\check($info['itemDescription'])
 		)
 	);
 	// Will not display, as key 'itemDescription_NOPE' does not exist.
 	$bookItemDiv->appendNewElement('p.description',
 		GlazePrepare::contentSeparatedBySoftLineBreaks(
-			Glaze::check($info['itemDescription_NOPE'])
+			Glaze\check($info['itemDescription_NOPE'])
 		)
 	);
 }
@@ -133,6 +132,6 @@ $bookItemDiv->serve();
 echo "\n\n\n";
 
 $escapedText = 'Bangers &amp; Mash';
-GlazeServe::attribute('alt', $escapedText, Glaze::TYPE_PREGLAZED);
+GlazeServe::attribute('alt', $escapedText, Glaze\TYPE_PREGLAZED);
 
 echo "\n\n";

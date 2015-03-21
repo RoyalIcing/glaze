@@ -6,7 +6,7 @@ This content is released under the MIT License: http://opensource.org/licenses/M
 */
 
 define('BASE_PATH', dirname(__FILE__));
-require_once(BASE_PATH. '/../glaze.php');
+require_once(BASE_PATH. '/../glaze-old.php');
 
 if ( !function_exists( 'microtime_float' )):
 function microtime_float()

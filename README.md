@@ -19,6 +19,10 @@ Just tell it what you want to display and let it worry about the HTML writing an
 Escaped elements in one line.
 
 ```php
+use BurntCaramel\Glaze;
+use BurntCaramel\Glaze\Prepare as GlazePrepare;
+use BurntCaramel\Glaze\Serve as GlazeServe;
+
 GlazeServe::element('h1#siteTitle', 'Title');
 // No need to escape the &
 GlazeServe::element('h2.tagline', 'The home of examples & more');
@@ -146,23 +150,23 @@ $bookItemDiv = GlazePrepare::element('div');
 	
 	// Will display:
 	$bookItemDiv->appendNewElement('h5.authorName',
-		Glaze::check($info['authorName'])
+		Glaze\check($info['authorName'])
 	);
 	// Will not display, as key 'authorName_NOPE' does not exist.
 	$bookItemDiv->appendNewElement('h5.authorName',
-		Glaze::check($info['authorName_NOPE'])
+		Glaze\check($info['authorName_NOPE'])
 	);
 	
 	// Will display:
 	$bookItemDiv->appendNewElement('p.description',
 		GlazePrepare::contentSeparatedBySoftLineBreaks(
-			Glaze::check($info['itemDescription'])
+			Glaze\check($info['itemDescription'])
 		)
 	);
 	// Will not display, as key 'itemDescription_NOPE' does not exist.
 	$bookItemDiv->appendNewElement('p.description',
 		GlazePrepare::contentSeparatedBySoftLineBreaks(
-			Glaze::check($info['itemDescription_NOPE'])
+			Glaze\check($info['itemDescription_NOPE'])
 		)
 	);
 }
@@ -187,7 +191,7 @@ Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu 
 
 ```php
 $escapedText = 'Bangers &amp; Mash';
-GlazeServe::attribute('alt', $escapedText, Glaze::TYPE_PREGLAZED);
+GlazeServe::attribute('alt', $escapedText, Glaze\TYPE_PREGLAZED);
 
 /* Displays: */?>
  alt="Bangers &amp; Mash"
