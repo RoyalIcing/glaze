@@ -59,14 +59,15 @@ namespace BurntCaramel\Glaze
 			);
 		}
 	
-		static protected function preparedItemForInput($contentValue = null, $contentType = TYPE_TEXT)
+		protected function preparedItemForInput($contentValue = null, $contentType = TYPE_TEXT)
 		{
 			if (!isset($contentValue)):
-				// For self closing elements.
+				// For self closing elements, or elements that will have content appended later.
 				return null;
 			elseif ($contentValue instanceof PreparedItem):
 				return $contentValue;
 			else:
+				// For strings or arrays.
 				return Prepare::content($contentValue, $contentType);
 			endif;
 		}
@@ -77,7 +78,7 @@ namespace BurntCaramel\Glaze
 			$this->tagName = $elementInfo['tagName'];
 			$this->attributes = $elementInfo['attributes'];
 		
-			$this->innerPreparedItem = self::preparedItemForInput($contentValue, $contentType);
+			$this->innerPreparedItem = $this->preparedItemForInput($contentValue, $contentType);
 		}
 	
 		static public function prepareAttributeValue($attributeValue = true, $valueType = null)
@@ -131,10 +132,15 @@ namespace BurntCaramel\Glaze
 			endforeach;
 		}
 	
-		static public function tagIsSelfClosing($tagName)
+		static public function tagIsSelfClosing($tagName, $options)
 		{
 			$tagName = strtolower($tagName);
-	
+			
+			$isRSS = burntCheck($options['isRSS'], false);
+			if ($isRSS):
+				return false;
+			endif;
+			
 			switch ($tagName):
 				case 'area':
 				case 'base':
@@ -158,10 +164,23 @@ namespace BurntCaramel\Glaze
 			endswitch;
 		}
 
-		static public function tagIsBlockLike($tagName)
-		{	
+		static public function tagIsBlockLike($tagName, $options)
+		{
 			$tagName = strtolower($tagName);
-	
+			
+			$isRSS = burntCheck($options['isRSS'], false);
+			if ($isRSS):
+				switch ($tagName):
+					case 'rss':
+					case 'channel':
+					case 'item':
+					case 'description':
+						return true;
+					default:
+						return false;
+				endswitch;
+			endif;
+			
 			// https://developer.mozilla.org/en-US/docs/HTML/Block-level_elements
 			switch ($tagName):
 				case 'address':
@@ -213,11 +232,9 @@ namespace BurntCaramel\Glaze
 			endswitch;
 		}
 	
-		static public function tagBelongsInHead($tagName)
+		static public function tagBelongsInHead($tagName, $options)
 		{
-			$tagName = strtolower($tagName);
-	
-			switch ($tagName):
+			switch (strtolower($tagName)):
 				case 'title':
 				case 'meta':
 				case 'link':
@@ -227,14 +244,19 @@ namespace BurntCaramel\Glaze
 			endswitch;
 		}
 	
-		static protected function tagShouldAddNewLineAfterOpening($tagName)
+		static protected function tagShouldAddNewLineAfterOpening($tagName, $options)
 		{
-			return self::tagIsBlockLike($tagName);
+			return self::tagIsBlockLike($tagName, $options);
 		}
 
-		static protected function tagShouldAddNewLineAfterClosing($tagName)
+		static protected function tagShouldAddNewLineAfterClosing($tagName, $options)
 		{
-			return self::tagIsBlockLike($tagName) || self::tagBelongsInHead($tagName);
+			$isRSS = burntCheck($options['isRSS'], false);
+			if ($isRSS):
+				return true;
+			endif;
+			
+			return self::tagIsBlockLike($tagName, $options) || self::tagBelongsInHead($tagName, $options);
 		}
 	
 	
@@ -245,7 +267,7 @@ namespace BurntCaramel\Glaze
 	
 		public function setAttributeChecking($attributeName, &$attributeValueToCheck, $attributeValueToUse = null, $valueType = null)
 		{
-			if (!isset($attributeValueToCheck) || ($attributeValueToCheck === false)) {
+			if (check($attributeValueToCheck) === false) {
 				return;
 			}
 		
@@ -276,6 +298,10 @@ namespace BurntCaramel\Glaze
 	
 		public function appendPreparedItem($preparedItemToAppend)
 		{
+			if ($preparedItemToAppend === false):
+				return false;
+			endif;
+			
 			if (!isset($this->innerPreparedItem)):
 				$this->innerPreparedItem = $preparedItemToAppend;
 			else:
@@ -294,10 +320,15 @@ namespace BurntCaramel\Glaze
 	
 		public function append($itemInput)
 		{
-			$preparedItemToAppend = self::preparedItemForInput($itemInput);
-		
-			$this->appendPreparedItem($preparedItemToAppend);
-		
+			if ($itemInput === false):
+				return false;
+			endif;
+			
+			$preparedItemToAppend = $this->preparedItemForInput($itemInput);
+			if (isset($preparedItemToAppend)):
+				$this->appendPreparedItem($preparedItemToAppend);
+			endif;
+			
 			return $preparedItemToAppend;
 		}
 	
@@ -332,11 +363,11 @@ namespace BurntCaramel\Glaze
 			ob_start();
 		}
 	
-		public function finishCapturingContent()
+		public function finishCapturingContent($contentType = TYPE_UNSAFE_HTML)
 		{
 			$capturedHTMLContent = ob_get_clean();
-			$preparedContent = Prepare::contentWithUnsafeHTML($capturedHTMLContent);
-			$this->append($preparedContent);
+			$preparedContent = Prepare::content($capturedHTMLContent, $contentType);
+			$this->appendPreparedItem($preparedContent);
 		}
 	
 		/**
@@ -345,6 +376,14 @@ namespace BurntCaramel\Glaze
 		public function serve($options = null)
 		{
 			$serveResult = array();
+			
+			$isRSS = burntCheck($options['isRSS'], false);
+			$isXML = burntCheck($options['isXML'], $isRSS);
+			$isRootElement = burntCheck($options['isRootElement'], false);
+			
+			if ($isXML && $isRootElement):
+				echo '<?xml version="1.0"?>' ."\n";
+			endif;
 		
 			$tagName = $this->tagName;
 			$attributes = $this->attributes;
@@ -354,29 +393,51 @@ namespace BurntCaramel\Glaze
 			if (!empty($attributes)):
 				self::serveAttributesArray($attributes);
 			endif;
+			
+			$isSelfClosing = burntCheck(
+				$options['isSelfClosing'],
+				self::tagIsSelfClosing($tagName, $options)
+			);
+			
+			if ($isXML && $isSelfClosing):
+				echo ' />';
+			else:
+				echo '>';
+			endif;
 	
-			echo '>';
-	
-			$newLineAfterOpening = self::tagShouldAddNewLineAfterOpening($tagName);
-			if ($newLineAfterOpening):
+			$addNewLineAfterOpening = burntCheck(
+				$options['addNewLineAfterOpening'],
+				self::tagShouldAddNewLineAfterOpening($tagName, $options)
+			);
+			if ($addNewLineAfterOpening):
 				echo "\n";
 			endif;
 	
 			$innerPreparedItem = $this->innerPreparedItem;
 			$innerServeResult = null;
 			if (isset($innerPreparedItem)):
-				$innerServeResult = Serve::serve($innerPreparedItem);
+				$childOptions = array_merge(
+					(array)$options,
+					array(
+						'isRootElement' => false
+					)
+				);
+				$innerServeResult = Serve::serve($innerPreparedItem, $childOptions);
 			endif;
 		
-			if ($newLineAfterOpening && empty($innerServeResult['endedWithNewLine'])):
+			if ($addNewLineAfterOpening && empty($innerServeResult['endedWithNewLine'])):
 				echo "\n";
 			endif;
-	
-			if (!self::tagIsSelfClosing($tagName)):
+			
+			if (!$isSelfClosing):
 				echo "</$tagName>";
 			endif;
-	
-			if (self::tagShouldAddNewLineAfterClosing($tagName)):
+			
+			$addNewLineAfterClosing = burntCheck(
+				$options['addNewLineAfterClosing'],
+				self::tagShouldAddNewLineAfterClosing($tagName, $options)
+			);
+			if ($addNewLineAfterClosing):
 				echo "\n";
 				$serveResult['endedWithNewLine'] = true;
 			endif;

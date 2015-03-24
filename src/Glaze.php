@@ -41,7 +41,7 @@ namespace BurntCaramel\Glaze
 		{
 			$mailto = 'mailto:';
 			if (strncmp($URLString, $mailto, strlen($mailto)) === 0):
-				return self::emailAddressMailtoURL($URLString);
+				return self::emailAddressMailtoURL(substr($URLString, strlen($mailto)));
 			else:
 				return self::text($URLString);
 			endif;
@@ -137,12 +137,14 @@ namespace BurntCaramel\Glaze
 	
 		static public function check(&$potentialContent)
 		{
-			if (isset($potentialContent) && ($potentialContent !== false)) {
-				return $potentialContent;
-			}
-			else {
+			if (!isset($potentialContent) || ($potentialContent === false)) {
 				return false;
 			}
+			else if (is_array($potentialContent) && count($potentialContent) === 0) {
+				return false;
+			}
+			
+			return $potentialContent;
 		}
 	}
 	

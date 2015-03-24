@@ -19,7 +19,7 @@ namespace BurntCaramel\Glaze
 		static public function attributeChecking($attributeName, &$attributeValueToCheck, $attributeValueToUse = null, $valueType = null)
 		{
 			// This is the check, if the value doesn't exist then return.
-			if (!isset($attributeValueToCheck) || ($attributeValueToCheck === false)) {
+			if (check($attributeValueToCheck) === false) {
 				return;
 			}
 	
@@ -28,21 +28,22 @@ namespace BurntCaramel\Glaze
 	
 		static public function serve($preparedItem, $options = null)
 		{
-			if (!isset($preparedItem) || ($preparedItem === false)): // empty discards '0' too unfortunately.
-				return null;
+			if (!isset($preparedItem) || check($preparedItem) === false): // empty discards '0' too unfortunately.
+				return false;
 			elseif ($preparedItem instanceof PreparedItem):
 				return $preparedItem->serve($options);
 			elseif (is_string($preparedItem)):
 				$contentType = !empty($options['type']) ? $options['type'] : null;
 				echo Glaze::value($preparedItem, $contentType);
-				return null;
 			endif;
 		}
 	
 		static public function element($tagNameOrElementOptions, $contentValue = null, $contentType = TYPE_TEXT)
 		{
 			$element = Prepare::element($tagNameOrElementOptions, $contentValue, $contentType);
-			$element->serve();
+			if (check($element) !== false):
+				$element->serve();
+			endif;
 		}
 	
 		static public function printR($object)

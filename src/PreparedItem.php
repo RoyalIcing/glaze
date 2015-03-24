@@ -11,10 +11,12 @@ namespace BurntCaramel\Glaze
 	{
 		/**
 		*	Appends an instance of PreparedElement or PreparedContent
+		*	@return Returns the prepared item that was passed, possibly modified.
 		*/
 		public function appendPreparedItem($preparedItemToAppend)
 		{
 			// For subclasses.
+			return null;
 		}
 	
 		/**

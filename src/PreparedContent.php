@@ -26,6 +26,8 @@ namespace BurntCaramel\Glaze
 			$contentValue[] = $item;
 		
 			$this->contentValue = $contentValue;
+			
+			return $item;
 		}
 	
 		/**
@@ -37,8 +39,11 @@ namespace BurntCaramel\Glaze
 			$contentType = $this->contentType;
 			$spacingContent = $this->spacingContent;
 		
-			$internalOptions = array(
-				'type' => $contentType
+			$internalOptions = array_merge(
+				$options,
+				array(
+					'type' => $contentType
+				)
 			);
 		
 			$lastServeReturnValue = null;
