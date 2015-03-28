@@ -64,8 +64,8 @@ namespace BurntCaramel\Glaze
 						endif;
 					endif;
 				endforeach;
-			// If is string:
-			elseif (is_string($contentValue)):
+			// If is string or number:
+			elseif (is_scalar($contentValue)):
 				$lastServeReturnValue = Serve::serve($contentValue, $internalOptions);
 			endif;
 		

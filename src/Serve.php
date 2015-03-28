@@ -28,11 +28,11 @@ namespace BurntCaramel\Glaze
 	
 		static public function serve($preparedItem, $options = null)
 		{
-			if (!isset($preparedItem) || check($preparedItem) === false): // empty discards '0' too unfortunately.
+			if (!check($preparedItem, false)): // empty discards '0' too unfortunately.
 				return false;
 			elseif ($preparedItem instanceof PreparedItem):
 				return $preparedItem->serve($options);
-			elseif (is_string($preparedItem)):
+			elseif (is_scalar($preparedItem)):
 				$contentType = !empty($options['type']) ? $options['type'] : null;
 				echo Glaze::value($preparedItem, $contentType);
 			endif;
