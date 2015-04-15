@@ -8,7 +8,7 @@
 	},
 	"autoload": {
 		"psr-4": {
-			"BurntCaramel\\Glaze": "src/"
+			"BurntCaramel\\Glaze\\": "src/"
 		}
 	}
 }
