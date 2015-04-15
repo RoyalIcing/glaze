@@ -7,16 +7,16 @@
 
 namespace BurntCaramel\Glaze
 {
-	const TYPE_TEXT = 'text';
-	const TYPE_URL = 'URL';
-	const TYPE_EMAIL_ADDRESS = 'emailAddress';
-	const TYPE_EMAIL_ADDRESS_MAILTO_URL = 'emailAddressMailtoURL';
-	const TYPE_SPACED_LIST_ATTRIBUTE = 'spacedListAttribute';
-	const TYPE_UNSAFE_HTML = 'unsafeHTML';
-	const TYPE_PREGLAZED = TYPE_UNSAFE_HTML;
-	
 	class Glaze
 	{
+		const TYPE_TEXT = 'text';
+		const TYPE_URL = 'URL';
+		const TYPE_EMAIL_ADDRESS = 'emailAddress';
+		const TYPE_EMAIL_ADDRESS_MAILTO_URL = 'emailAddressMailtoURL';
+		const TYPE_SPACED_LIST_ATTRIBUTE = 'spacedListAttribute';
+		const TYPE_UNSAFE_HTML = 'unsafeHTML';
+		const TYPE_PREGLAZED = Glaze::TYPE_UNSAFE_HTML;
+		
 		/**
 		*	Preserve the text for HTML output (escapes it)
 		*
@@ -98,12 +98,12 @@ namespace BurntCaramel\Glaze
 			$attributeName = strtolower($attributeName);
 	
 			if ($attributeName === 'class'):
-				return TYPE_SPACED_LIST_ATTRIBUTE;
+				return self::TYPE_SPACED_LIST_ATTRIBUTE;
 			elseif ($attributeName === 'href' || $attributeName === 'src'):
-				return TYPE_URL;
+				return self::TYPE_URL;
 			endif;
 	
-			return TYPE_TEXT;
+			return self::TYPE_TEXT;
 		}
 	
 		/**
@@ -115,20 +115,20 @@ namespace BurntCaramel\Glaze
 		*/
 		static public function value($value, $valueType = null)
 		{
-			if ($valueType === TYPE_UNSAFE_HTML) {
+			if ($valueType === self::TYPE_UNSAFE_HTML) {
 				return $value;
 			}
-			else if ($valueType === TYPE_URL) {
+			else if ($valueType === self::TYPE_URL) {
 				return self::URL($value);
 			}
-			else if ($valueType === TYPE_EMAIL_ADDRESS) {
+			else if ($valueType === self::TYPE_EMAIL_ADDRESS) {
 				return self::emailAddress($value);
 			}
-			else if ($valueType === TYPE_EMAIL_ADDRESS_MAILTO_URL) {
+			else if ($valueType === self::TYPE_EMAIL_ADDRESS_MAILTO_URL) {
 				return self::emailAddressMailtoURL($value);
 			}
 		
-			if (($valueType === TYPE_SPACED_LIST_ATTRIBUTE) && is_array($value)) {
+			if (($valueType === self::TYPE_SPACED_LIST_ATTRIBUTE) && is_array($value)) {
 				$value = implode(' ', $value);
 			}
 	
@@ -148,13 +148,13 @@ namespace BurntCaramel\Glaze
 		}
 	}
 	
-	function check(&$potentialContent)
+	function burntCheck(&$valueToCheck, $default = null)
 	{
-		if (isset($potentialContent) && ($potentialContent !== false)) {
-			return $potentialContent;
+		if (isset($valueToCheck)) {
+			return $valueToCheck;
 		}
 		else {
-			return false;
+			return $default;
 		}
 	}
 }

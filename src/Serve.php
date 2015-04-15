@@ -7,6 +7,7 @@
 
 namespace BurntCaramel\Glaze
 {
+	require_once(dirname(__FILE__). '/Glaze.php');
 	require_once(dirname(__FILE__). '/Prepare.php');
 	
 	class Serve
@@ -19,7 +20,7 @@ namespace BurntCaramel\Glaze
 		static public function attributeChecking($attributeName, &$attributeValueToCheck, $attributeValueToUse = null, $valueType = null)
 		{
 			// This is the check, if the value doesn't exist then return.
-			if (check($attributeValueToCheck) === false) {
+			if (burntCheck($attributeValueToCheck, false) === false) {
 				return;
 			}
 	
@@ -28,7 +29,7 @@ namespace BurntCaramel\Glaze
 	
 		static public function serve($preparedItem, $options = null)
 		{
-			if (!check($preparedItem, false)): // empty discards '0' too unfortunately.
+			if (!burntCheck($preparedItem, false)): // empty discards '0' too unfortunately.
 				return false;
 			elseif ($preparedItem instanceof PreparedItem):
 				return $preparedItem->serve($options);
@@ -38,10 +39,10 @@ namespace BurntCaramel\Glaze
 			endif;
 		}
 	
-		static public function element($tagNameOrElementOptions, $contentValue = null, $contentType = TYPE_TEXT)
+		static public function element($tagNameOrElementOptions, $contentValue = null, $contentType = Glaze::TYPE_TEXT)
 		{
 			$element = Prepare::element($tagNameOrElementOptions, $contentValue, $contentType);
-			if (check($element) !== false):
+			if (burntCheck($element, false) !== false):
 				$element->serve();
 			endif;
 		}

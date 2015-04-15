@@ -7,30 +7,30 @@ This content is released under the MIT License: http://opensource.org/licenses/M
 
 require_once(dirname(__FILE__). '/../all.php');
 
-use BurntCaramel\Glaze;
+use BurntCaramel\Glaze\Glaze as Glaze;
 use BurntCaramel\Glaze\Prepare as GlazePrepare;
 use BurntCaramel\Glaze\Serve as GlazeServe;
 
 $html = GlazePrepare::element('html');
 {
 	$html->appendNewElement('head', array(
-		Glaze\Prepare::element('title', 'An example of using glaze.php'),
-		Glaze\Prepare::element(array('tagName' => 'meta', 'charset' => 'utf-8'))
+		GlazePrepare::element('title', 'An example of using glaze.php'),
+		GlazePrepare::element(array('tagName' => 'meta', 'charset' => 'utf-8'))
 	));
 	
 	$body = $html->appendNewElement('body');
 	{
 		$body->appendNewElement('header', array(
-			Glaze\Prepare::element('h1', 'Glaze preserves your content by escaping any <html> characters.')
+			GlazePrepare::element('h1', 'Glaze preserves your content by escaping any <html> characters.')
 		));
 		
 		$body->appendNewElement('p', 'Your content should be stored as it was written. Escaping first makes it difficult when content is used outside of the web, such as in an app.');
 		
 		$body->appendNewElement('p', array(
 			'You can easily format what you write, adding ',
-			Glaze\Prepare::element('strong', '<strong>'),
+			GlazePrepare::element('strong', '<strong>'),
 			' or ',
-			Glaze\Prepare::element('em', '<em>'),
+			GlazePrepare::element('em', '<em>'),
 			' just by interspersing text with `GlazePrepare::element(tagName, content)`.'
 		));
 		
@@ -76,19 +76,19 @@ $html = GlazePrepare::element('html');
 			$bookItemDiv->setAttributeChecking('selected-nope', $info['selected_NOPE'], 'selected');
 	
 			// Will display:
-			$bookItemDiv->appendNewElement('h5.authorName', Glaze\check($info['authorName']));
+			$bookItemDiv->appendNewElement('h5.authorName', Glaze::check($info['authorName']));
 			// Will not display:
-			$bookItemDiv->appendNewElement('h5.authorName', Glaze\check($info['authorName_NOPE']));
+			$bookItemDiv->appendNewElement('h5.authorName', Glaze::check($info['authorName_NOPE']));
 			
 			// Will display:
-			$bookItemDiv->appendNewElement('p.description', Glaze\Prepare::contentSeparatedBySoftLineBreaks( Glaze\check($info['itemDescription']) ));
+			$bookItemDiv->appendNewElement('p.description', GlazePrepare::contentSeparatedBySoftLineBreaks( Glaze::check($info['itemDescription']) ));
 			// Will not display:
-			$bookItemDiv->appendNewElement('p.description', Glaze\Prepare::contentSeparatedBySoftLineBreaks( Glaze\check($info['itemDescription_NOPE']) ));
+			$bookItemDiv->appendNewElement('p.description', GlazePrepare::contentSeparatedBySoftLineBreaks( Glaze::check($info['itemDescription_NOPE']) ));
 		}
 		
 		
 		
-		$body->appendNewElement('h2', 'These are already escaped &amp; &lt; &gt;', Glaze\TYPE_PREGLAZED);
+		$body->appendNewElement('h2', 'These are already escaped &amp; &lt; &gt;', Glaze::TYPE_UNSAFE_HTML);
 		
 		
 		$img = $body->appendNewElement('img');
@@ -96,7 +96,7 @@ $html = GlazePrepare::element('html');
 			$img->setAttribute('src', 'http://placehold.it/150x50');
 			
 			$escapedText = 'Bangers &amp; Mash';
-			$img->setAttribute('alt', $escapedText, Glaze\TYPE_PREGLAZED);
+			$img->setAttribute('alt', $escapedText, Glaze::TYPE_UNSAFE_HTML);
 		}
 		
 		
@@ -107,18 +107,18 @@ $html = GlazePrepare::element('html');
 		$body->appendNewElement('hr');
 		$body->appendNewElement('p', array(
 			'Updating this file by using: ',
-			Glaze\Prepare::element('br'),
-			Glaze\Prepare::element('code', 'php -f example-update.php')
+			GlazePrepare::element('br'),
+			GlazePrepare::element('code', 'php -f example-update.php')
 		));
 		$body->appendNewElement('p', array(
 			'Check this file with the last version by using: ',
-			Glaze\Prepare::element('br'),
-			Glaze\Prepare::element('code', 'php -f example-check.php')
+			GlazePrepare::element('br'),
+			GlazePrepare::element('code', 'php -f example-check.php')
 		));
 		
 		$body->appendNewElement('p', array(
 			'You can download glaze.php from here: ',
-			Glaze\Prepare::element(array(
+			GlazePrepare::element(array(
 				'tagName' => 'a',
 				'href' => 'http://github.com/BurntCaramel/glaze'
 			), 'github.com/BurntCaramel/glaze')

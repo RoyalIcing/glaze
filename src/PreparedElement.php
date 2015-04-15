@@ -7,6 +7,8 @@
 
 namespace BurntCaramel\Glaze
 {
+	require_once(dirname(__FILE__). '/Glaze.php');
+	
 	class PreparedElement extends PreparedItem
 	{
 		protected $tagName;
@@ -59,7 +61,7 @@ namespace BurntCaramel\Glaze
 			);
 		}
 	
-		protected function preparedItemForInput($contentValue = null, $contentType = TYPE_TEXT)
+		protected function preparedItemForInput($contentValue = null, $contentType = Glaze::TYPE_TEXT)
 		{
 			if (!isset($contentValue)):
 				// For self closing elements, or elements that will have content appended later.
@@ -72,7 +74,7 @@ namespace BurntCaramel\Glaze
 			endif;
 		}
 	
-		public function __construct($tagNameOrElementOptions, $contentValue = null, $contentType = TYPE_TEXT)
+		public function __construct($tagNameOrElementOptions, $contentValue = null, $contentType = Glaze::TYPE_TEXT)
 		{
 			$elementInfo = self::elementInfoForPassedOptions($tagNameOrElementOptions);
 			$this->tagName = $elementInfo['tagName'];
@@ -267,7 +269,7 @@ namespace BurntCaramel\Glaze
 	
 		public function setAttributeChecking($attributeName, &$attributeValueToCheck, $attributeValueToUse = null, $valueType = null)
 		{
-			if (check($attributeValueToCheck) === false) {
+			if (Glaze::check($attributeValueToCheck) === false) {
 				return;
 			}
 		
@@ -363,7 +365,7 @@ namespace BurntCaramel\Glaze
 			ob_start();
 		}
 	
-		public function finishCapturingContent($contentType = TYPE_UNSAFE_HTML)
+		public function finishCapturingContent($contentType = Glaze::TYPE_UNSAFE_HTML)
 		{
 			$capturedHTMLContent = ob_get_clean();
 			$preparedContent = Prepare::content($capturedHTMLContent, $contentType);

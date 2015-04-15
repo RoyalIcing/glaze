@@ -22,7 +22,7 @@ namespace BurntCaramel\Glaze
 		/**
 		*	Appends a new PreparedElement made with the passed arguments.
 		*/
-		public function appendNewElement($tagNameOrElementOptions, $contentValue = null, $contentType = TYPE_TEXT)
+		public function appendNewElement($tagNameOrElementOptions, $contentValue = null, $contentType = Glaze::TYPE_TEXT)
 		{
 			$element = Prepare::element($tagNameOrElementOptions, $contentValue, $contentType);
 			if (!isset($element) || $element === false):
@@ -37,7 +37,7 @@ namespace BurntCaramel\Glaze
 		/**
 		*	Appends a new HTML comment.
 		*/
-		public function appendInvisibleComment($contentValue = null, $contentType = TYPE_TEXT)
+		public function appendInvisibleComment($contentValue = null, $contentType = Glaze::TYPE_TEXT)
 		{
 			$content = Prepare::invisibleComment($contentValue, $contentType);
 			if (!isset($content) || $content === false):

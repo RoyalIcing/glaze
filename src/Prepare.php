@@ -16,7 +16,7 @@ namespace BurntCaramel\Glaze
 		/**
 		*	Returns prepared content separated by other content.
 		*/
-		static public function contentSeparatedBy($contentValue, $contentType = TYPE_TEXT, $spacingContent = null)
+		static public function contentSeparatedBy($contentValue, $contentType = Glaze::TYPE_TEXT, $spacingContent = null)
 		{
 			if ($contentValue === false):
 				return false;
@@ -32,7 +32,7 @@ namespace BurntCaramel\Glaze
 		/**
 		*	Returns prepared content with the specified content type.
 		*/
-		static public function content($contentValue, $contentType = TYPE_TEXT)
+		static public function content($contentValue, $contentType = Glaze::TYPE_TEXT)
 		{
 			return self::contentSeparatedBy($contentValue, $contentType, '');
 		}
@@ -40,7 +40,7 @@ namespace BurntCaramel\Glaze
 		/**
 		*	Returns prepared content separated by a single space.
 		*/
-		static public function contentSeparatedBySpaces($contentValue, $contentType = TYPE_TEXT)
+		static public function contentSeparatedBySpaces($contentValue, $contentType = Glaze::TYPE_TEXT)
 		{
 			return self::contentSeparatedBy($contentValue, $contentType, ' ');
 		}
@@ -48,7 +48,7 @@ namespace BurntCaramel\Glaze
 		/**
 		*	Returns prepared content separated by an HTML string.
 		*/
-		static public function contentSeparatedByHTML($contentValue, $contentType = TYPE_TEXT, $spacingHTML = '')
+		static public function contentSeparatedByHTML($contentValue, $contentType = Glaze::TYPE_TEXT, $spacingHTML = '')
 		{
 			if ($contentValue === false):
 				return false;
@@ -69,7 +69,7 @@ namespace BurntCaramel\Glaze
 		/**
 		*	Returns prepared content separated by the <br> line break HTML element
 		*/
-		static public function contentSeparatedBySoftLineBreaks($contentValue, $contentType = TYPE_TEXT)
+		static public function contentSeparatedBySoftLineBreaks($contentValue, $contentType = Glaze::TYPE_TEXT)
 		{
 			return self::contentSeparatedByHTML($contentValue, $contentType, "<br>\n");
 		}
@@ -79,14 +79,14 @@ namespace BurntCaramel\Glaze
 		*/
 		static public function contentWithUnsafeHTML($contentValue)
 		{
-			return self::contentSeparatedBy($contentValue, TYPE_UNSAFE_HTML, '');
+			return self::contentSeparatedBy($contentValue, Glaze::TYPE_UNSAFE_HTML, '');
 		}
 	
 		/**
 		*	Returns prepared element with the same arguments that PreparedElement's constructor takes.
 		*	Checks if $contentValue is false, if it is then returns false.
 		*/
-		static public function element($tagNameOrElementOptions, $contentValue = null, $contentType = TYPE_TEXT)
+		static public function element($tagNameOrElementOptions, $contentValue = null, $contentType = Glaze::TYPE_TEXT)
 		{
 			if ($contentValue === false):
 				return false;
@@ -110,7 +110,7 @@ namespace BurntCaramel\Glaze
 		/**
 		*	Returns prepared HTML comment
 		*/
-		static public function invisibleComment($contentValue, $contentType = TYPE_TEXT)
+		static public function invisibleComment($contentValue, $contentType = Glaze::TYPE_TEXT)
 		{
 			return self::content(array(
 				self::contentWithUnsafeHTML('<!-- '),
